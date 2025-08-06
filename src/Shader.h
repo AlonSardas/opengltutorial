@@ -24,10 +24,10 @@ public:
     void setInt(const std::string &name, int value) const;
     void setFloat(const std::string &name, float value) const;
 
-    // Todo: add destructor
-
 private:
-    void checkCompileErrors(unsigned int shader, std::string type);
+    GLint getUniformLocation(const std::string &name) const;
+    void checkCompileErrors(const unsigned int &shader, const std::string &type);
+    void checkLinkingErrors();
     std::string readFile(const char *filePath);
 };
 

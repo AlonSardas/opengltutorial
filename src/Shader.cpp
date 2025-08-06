@@ -67,41 +67,65 @@ void Shader::use()
 
 void Shader::setBool(const std::string &name, bool value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+    GLint location = getUniformLocation(name);
+    glUniform1i(location, (int)value);
 }
 // ------------------------------------------------------------------------
 void Shader::setInt(const std::string &name, int value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    GLint location = getUniformLocation(name);
+    glUniform1i(location, value);
 }
 // ------------------------------------------------------------------------
 void Shader::setFloat(const std::string &name, float value) const
 {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    GLint location = getUniformLocation(name);
+    glUniform1f(location, value);
 }
 
-void Shader::checkCompileErrors(unsigned int shader, std::string type)
+GLint Shader::getUniformLocation(const std::string &name) const
 {
-    int success;
-    char infoLog[1024];
-    std::string errorMessage;
-
-    if (type != "PROGRAM")
+    GLint location = glGetUniformLocation(ID, name.c_str());
+    if (location == -1)
     {
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        errorMessage = "ERROR::SHADER::" + type + "::COMPILATION_FAILED\n" + infoLog;
-    }
-    else
-    {
-        glGetProgramiv(shader, GL_LINK_STATUS, &success);
-        errorMessage = "ERROR::PROGRAM_LINKING_ERROR of type: " + type + "\n" + infoLog;
-    }
-    if (!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        std::string errorMessage = "Uniform '" + name + "' not found or optimized out.";
         std::cout << errorMessage << std::endl;
         throw std::runtime_error(errorMessage);
-    };
+    }
+    return location;
+}
+
+void Shader::checkCompileErrors(const unsigned int &shader, const std::string &type)
+{
+    int success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    glGetProgramiv(shader, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        char infoLog[512];
+        std::string errorMessage;
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        errorMessage = "ERROR::SHADER::" + type + "::COMPILATION_FAILED\n";
+        errorMessage += infoLog;
+        std::cout << errorMessage << std::endl;
+        throw std::runtime_error(errorMessage);
+    }
+}
+
+void Shader::checkLinkingErrors()
+{
+    int success;
+    glGetProgramiv(ID, GL_LINK_STATUS, &success);
+
+    if (!success)
+    {
+        char infoLog[512];
+        std::string errorMessage;
+        glGetProgramInfoLog(ID, 512, NULL, infoLog);
+        errorMessage = std::string("ERROR::PROGRAM_LINKING_ERROR\n") + infoLog;
+        std::cout << errorMessage << std::endl;
+        throw std::runtime_error(errorMessage);
+    }
 }
 
 std::string Shader::readFile(const char *filePath)

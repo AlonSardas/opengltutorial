@@ -11,12 +11,16 @@ https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/3.1.shader
 
 Color per vertex
 https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/3.2.shaders_interpolation/shaders_interpolation.cpp
+
+Texture
+https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/4.1.textures/textures.cpp
 */
 
 #include <iostream>
 #include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "stb_image.h"
 
 #include "Shader.h"
 
@@ -25,6 +29,8 @@ int run(GLFWwindow *window);
 unsigned int createShaderProgram(const char *vertexShaderSrc, const char *fragmentShaderSrc);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
+unsigned int loadTexture(const char *filePath, bool flipVertically, bool withAlpha,
+                         GLenum wrapX = GL_MIRRORED_REPEAT, GLenum wrapYGL_MIRRORED_REPEAT = GL_MIRRORED_REPEAT);
 
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
@@ -57,6 +63,9 @@ const char *fragmentShaderSource2 = "#version 330 core\n"
                                     "FragColor = vec4(0.0f, 0.9f, 0.95f, 1.0f);\n"
                                     "}\0";
 
+float mixRatio = 0.5f;
+float mixRatioStep = 0.01;
+
 int main()
 {
     GLFWwindow *window = initWindow();
@@ -73,7 +82,6 @@ int main()
 
 int run(GLFWwindow *window)
 {
-
     Shader ourShader("shaders/vertexAndColor.vs", "shaders/fragmentAdapter.fs");
 
     unsigned int shaderProgram2 = createShaderProgram(vertexShaderSource, fragmentShaderWithUniformSource);
@@ -177,6 +185,49 @@ int run(GLFWwindow *window)
         return -1;
     }
 
+    Shader textureShader("shaders/vertexColorTexture.vs", "shaders/textureMergeFragment.fs");
+    float verticesAndTexture[] = {
+        // 3 positions      // 3 colors    // 2 texture coords
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,   // top right
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 2.0f   // top left
+    };
+    unsigned int indicesTexture[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+    unsigned int VBO3, VAO3, EBO3;
+    glGenVertexArrays(1, &VAO3);
+    glGenBuffers(1, &VBO3);
+    glGenBuffers(1, &EBO3);
+
+    glBindVertexArray(VAO3);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesAndTexture), verticesAndTexture, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO3);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesTexture), indicesTexture, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    // color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    textureShader.use();
+    unsigned int texture1 = loadTexture("resources/container.jpg", false, false, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    textureShader.setInt("texture1", 0);
+
+    unsigned int texture2 = loadTexture("resources/awesomeface.png", true, true, GL_REPEAT, GL_REPEAT);
+    textureShader.setInt("texture2", 1);
+
+    textureShader.setFloat("mixRatio", mixRatio);
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -202,10 +253,25 @@ int run(GLFWwindow *window)
         glBindVertexArray(0);
 
         ourShader.use();
+        ourShader.setFloat("xOffset", -0.4);
         glBindVertexArray(VAO2);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         // glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+
+        // Draw texture box
+        // bind Texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+
+        // render container
+        textureShader.use();
+        textureShader.setFloat("mixRatio", mixRatio);
+        glBindVertexArray(VAO3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // glBindVertexArray(0);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -215,8 +281,12 @@ int run(GLFWwindow *window)
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteVertexArrays(1, &VAO2);
+    glDeleteVertexArrays(1, &VAO3);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &VBO2);
+    glDeleteBuffers(1, &VBO3);
+    glDeleteBuffers(1, &EBO);
+    glDeleteBuffers(1, &EBO3);
     glDeleteProgram(shaderProgram2);
 
     return 0;
@@ -314,4 +384,40 @@ void processInput(GLFWwindow *window)
     {
         glfwSetWindowShouldClose(window, true);
     }
+    else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        mixRatio = std::min(mixRatio + mixRatioStep, 1.0f);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        mixRatio = std::max(mixRatio - mixRatioStep, 0.0f);
+    }
+}
+
+unsigned int loadTexture(const char *filePath, bool flipVertically, bool withAlpha, GLenum wrapX, GLenum wrapY)
+{
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapX);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(flipVertically);
+    unsigned char *data = stbi_load(filePath, &width, &height, &nrChannels, 0);
+    if (data == nullptr)
+    {
+        std::string errorMessage = "Could not load image " + std::string(filePath);
+        std::cout << errorMessage << std::endl;
+        throw std::runtime_error(errorMessage);
+    }
+    GLenum rgba = withAlpha ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgba, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(data);
+
+    return texture;
 }
