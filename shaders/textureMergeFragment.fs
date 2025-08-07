@@ -11,8 +11,8 @@ uniform float mixRatio;
 
 void main()
 {
-    // FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+    FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), mixRatio);
     // Flip texture2
-    vec2 flippedCoor = vec2(1-TexCoord.x, TexCoord.y);
-    FragColor = mix(texture(texture1, TexCoord), texture(texture2, flippedCoor), mixRatio);
+    // vec2 flippedCoor = vec2(1-TexCoord.x, TexCoord.y);
+    // FragColor = mix(texture(texture1, TexCoord), texture(texture2, flippedCoor), mixRatio);
 }

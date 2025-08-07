@@ -21,8 +21,12 @@ https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/4.1.textur
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
+#include "glmtest.h"
 
 GLFWwindow *initWindow();
 int run(GLFWwindow *window);
@@ -68,6 +72,8 @@ float mixRatioStep = 0.01;
 
 int main()
 {
+    // testTranslation();
+
     GLFWwindow *window = initWindow();
     if (window == nullptr)
     {
@@ -185,7 +191,8 @@ int run(GLFWwindow *window)
         return -1;
     }
 
-    Shader textureShader("shaders/vertexColorTexture.vs", "shaders/textureMergeFragment.fs");
+    Shader textureShader("shaders/textureAndTransform.vs", "shaders/textureMergeFragment.fs");
+    // Shader textureShader("shaders/vertexColorTexture.vs", "shaders/textureMergeFragment.fs");
     float verticesAndTexture[] = {
         // 3 positions      // 3 colors    // 2 texture coords
         0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,   // top right
@@ -214,12 +221,19 @@ int run(GLFWwindow *window)
     glEnableVertexAttribArray(0);
     // color attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    // glEnableVertexAttribArray(1);
     // texture coord attribute
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 0.0, 1.0));
+    trans = glm::scale(trans, glm::vec3(1.5, 1.5, 1.5));
+
     textureShader.use();
+    unsigned int transformLoc = textureShader.getUniformLocation("transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
     unsigned int texture1 = loadTexture("resources/container.jpg", false, false, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     textureShader.setInt("texture1", 0);
 
@@ -269,6 +283,12 @@ int run(GLFWwindow *window)
         // render container
         textureShader.use();
         textureShader.setFloat("mixRatio", mixRatio);
+
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
         glBindVertexArray(VAO3);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // glBindVertexArray(0);
