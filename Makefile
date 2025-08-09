@@ -1,9 +1,8 @@
 CXX = g++
-CXXFLAGS = -I/home/alon/Documents/Dev/OpenGLTutorial/glfw-3.4/include \
-			-Iinclude
+CXXFLAGS = -Iinclude
 
 LDFLAGS = -L/home/alon/Documents/Dev/OpenGLTutorial/glfw-3.4/build/src \
-          -lGL -lglfw
+		  -lGL -lglfw
 
 SRC = $(wildcard src/*.cpp src/*.c)
 OUT = main.app

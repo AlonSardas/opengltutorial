@@ -2,13 +2,13 @@
 https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
 */
 
-#include <iostream>
-#include <fstream>
-
 #include "Shader.h"
+#include <fstream>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
-Shader::Shader(const char *vertexPath, const char *fragmentPath)
-{
+Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
@@ -17,13 +17,10 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
     // ensure ifstream objects can throw exceptions:
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try
-    {
+    try {
         vertexCode = readFile(vertexPath);
         fragmentCode = readFile(fragmentPath);
-    }
-    catch (std::ifstream::failure e)
-    {
+    } catch (std::ifstream::failure e) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
         throw;
     }
@@ -50,58 +47,53 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath)
     glLinkProgram(ID);
     checkCompileErrors(ID, "PROGRAM");
 
-    // delete the shaders as they're linked into our program now and no longer necessary
+    // delete the shaders as they're linked into our program now and no longer
+    // necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
 
-Shader::~Shader()
-{
-    glDeleteProgram(ID);
-}
+Shader::~Shader() { glDeleteProgram(ID); }
 
-void Shader::use()
-{
-    glUseProgram(ID);
-}
+void Shader::use() { glUseProgram(ID); }
 
-void Shader::setBool(const std::string &name, bool value) const
-{
+void Shader::setBool(const std::string &name, bool value) const {
     GLint location = getUniformLocation(name);
     glUniform1i(location, (int)value);
 }
 // ------------------------------------------------------------------------
-void Shader::setInt(const std::string &name, int value) const
-{
+void Shader::setInt(const std::string &name, int value) const {
     GLint location = getUniformLocation(name);
     glUniform1i(location, value);
 }
 // ------------------------------------------------------------------------
-void Shader::setFloat(const std::string &name, float value) const
-{
+void Shader::setFloat(const std::string &name, float value) const {
     GLint location = getUniformLocation(name);
     glUniform1f(location, value);
 }
 
-GLint Shader::getUniformLocation(const std::string &name) const
-{
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
+    GLint location = getUniformLocation(name);
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+GLint Shader::getUniformLocation(const std::string &name) const {
     GLint location = glGetUniformLocation(ID, name.c_str());
-    if (location == -1)
-    {
-        std::string errorMessage = "Uniform '" + name + "' not found or optimized out.";
+    if (location == -1) {
+        std::string errorMessage =
+            "Uniform '" + name + "' not found or optimized out.";
         std::cout << errorMessage << std::endl;
         throw std::runtime_error(errorMessage);
     }
     return location;
 }
 
-void Shader::checkCompileErrors(const unsigned int &shader, const std::string &type)
-{
+void Shader::checkCompileErrors(const unsigned int &shader,
+                                const std::string &type) {
     int success;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     glGetProgramiv(shader, GL_LINK_STATUS, &success);
-    if (!success)
-    {
+    if (!success) {
         char infoLog[512];
         std::string errorMessage;
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
@@ -112,13 +104,11 @@ void Shader::checkCompileErrors(const unsigned int &shader, const std::string &t
     }
 }
 
-void Shader::checkLinkingErrors()
-{
+void Shader::checkLinkingErrors() {
     int success;
     glGetProgramiv(ID, GL_LINK_STATUS, &success);
 
-    if (!success)
-    {
+    if (!success) {
         char infoLog[512];
         std::string errorMessage;
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
@@ -128,8 +118,7 @@ void Shader::checkLinkingErrors()
     }
 }
 
-std::string Shader::readFile(const char *filePath)
-{
+std::string Shader::readFile(const char *filePath) {
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     file.open(filePath);
