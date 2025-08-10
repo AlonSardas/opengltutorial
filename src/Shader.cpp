@@ -3,10 +3,6 @@ https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
 */
 
 #include "Shader.h"
-#include <fstream>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <iostream>
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath

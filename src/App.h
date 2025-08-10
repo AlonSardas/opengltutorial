@@ -1,19 +1,33 @@
 #pragma once
 
+#include "EulerCamera.h"
+#include "Mouse.h"
+#include "QuatCamera.h"
 #include "Renderer.h"
+#include "Shader.h"
+#include "Texture.h"
 #include "Window.h"
 #include <glad/glad.h>
 #include <iostream>
+#include <stdexcept>
 
 class App {
-    Window window;
-    Renderer renderer;
-
   public:
     App();
-    inline void onResize(int width, int height) {
-        renderer.onResize(width, height);
-    }
+    void onResize(int width, int height) { renderer.onResize(width, height); }
+    void onMouseMove(double xposIn, double yposIn);
+    void onMouseScroll(double xoffset, double yoffset);
     void run();
-    void processInput();
+
+  private:
+    void processInput(float deltaTime);
+
+    Window window;
+    Renderer renderer;
+    QuatCamera camera;
+    Mouse mouse;
+
+    // TODO: Inlcude mouse object
+    bool firstMouse = true;
+    float lastX = 0.0, lastY = 0.0;
 };

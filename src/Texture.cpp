@@ -1,6 +1,4 @@
 #include "Texture.h"
-#include "stb_image.h"
-#include <stdexcept>
 
 Texture::Texture() { glGenTextures(1, &id); }
 

@@ -3,6 +3,8 @@
 #include <glad/glad.h> // Must come before glfw3.h
 
 #include <GLFW/glfw3.h>
+#include <iostream>
+#include <stdexcept>
 
 class App;
 
@@ -15,7 +17,7 @@ class Window {
 
     void pollEvents();
     void swapBuffers();
-    void setResizeCallback(App *appInstance);
+    void setAppForCallback(App *appInstance);
     bool shouldClose() const;
     inline int getKeyStatus(int key) { return glfwGetKey(handle, key); }
     inline void setShouldClose(bool val) {
@@ -25,4 +27,7 @@ class Window {
   private:
     static void framebufferSizeCallback(GLFWwindow *window, int width,
                                         int height);
+    static void mouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
+    static void mouseScrollCallback(GLFWwindow *window, double xoffset,
+                                    double yoffset);
 };

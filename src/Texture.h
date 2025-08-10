@@ -1,6 +1,8 @@
 #pragma once
 
+#include "stb_image.h"
 #include <glad/glad.h>
+#include <stdexcept>
 
 class Texture {
   public:
