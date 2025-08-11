@@ -6,10 +6,16 @@ https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/6.3.coordi
 https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/7.3.camera_mouse_zoom/camera_mouse_zoom.cpp
 */
 #include "App.h"
+#include "renderers/LightingRenderer.h"
+#include "renderers/Renderer.h"
 
-App::App() : window(800, 600, "My openGL app"), camera(), renderer(camera) {
-    renderer.init();
-    renderer.onResize(800, 600);
+App::App()
+    : window(INITIAL_WIDTH, INITIAL_HEIGHT, "My openGL app"), camera(),
+      projection(45.0f, float(INITIAL_WIDTH) / INITIAL_HEIGHT) {
+    // renderer = std::make_unique<Renderer>(camera, projection);
+    renderer = std::make_unique<LightingRenderer>(camera, projection);
+    renderer->init();
+    renderer->onResize(INITIAL_WIDTH, INITIAL_HEIGHT);
     window.setAppForCallback(this);
 }
 
@@ -23,11 +29,16 @@ void App::run() {
 
         processInput(deltaTime);
 
-        renderer.render();
+        renderer->render();
 
         window.swapBuffers();
         glfwPollEvents();
     }
+}
+
+void App::onResize(int width, int height) {
+    renderer->onResize(width, height);
+    projection.setAspectRatio(float(width) / height);
 }
 
 void App::processInput(float deltaTime) {
@@ -75,5 +86,5 @@ void App::onMouseMove(double xposIn, double yposIn) {
 
 void App::onMouseScroll(double xoffset, double yoffset) {
     auto [dx, dy] = mouse.onMouseScroll(xoffset, yoffset);
-    renderer.adjustFov(-dy);
+    projection.adjustFov(-dy);
 }

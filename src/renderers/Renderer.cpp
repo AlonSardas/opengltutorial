@@ -1,8 +1,9 @@
 #include "Renderer.h"
+#include "Cube.h"
 
-Renderer::Renderer(const QuatCamera &c)
+Renderer::Renderer(const QuatCamera &c, PerspectiveProjection &proj)
     : shader("shaders/vertexTransformer.vs", "shaders/textureMergeFragment.fs"),
-      camera(c) {}
+      camera(c), projection(proj) {}
 
 Renderer::~Renderer() {
     glDeleteVertexArrays(1, &VAO);
@@ -13,23 +14,6 @@ Renderer::~Renderer() {
 void Renderer::onResize(int width, int height) {
     // std::cout << "resized!" << width << "," << height << std::endl;
     glViewport(0, 0, width, height);
-    aspectRatio = float(width) / height;
-    updateProjectionMatrix();
-}
-
-void Renderer::adjustFov(float deltaDegrees) {
-    fov += deltaDegrees;
-    if (fov < MIN_FOV)
-        fov = MIN_FOV;
-    if (fov > MAX_FOV)
-        fov = MAX_FOV;
-    updateProjectionMatrix();
-}
-
-void Renderer::updateProjectionMatrix() {
-    projection = glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 100.0f);
-    // projection = glm::ortho(-3.0f, 3.0f, -3.0f, 3.0f, -10.0f, 100.0f);
-    shader.setMat4("projection", projection);
 }
 
 void Renderer::init() {
@@ -38,21 +22,8 @@ void Renderer::init() {
     model = glm::mat4(1.0f);
     model =
         glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    view = glm::mat4(1.0f);
-    // note that we're translating the scene in the reverse direction of where
-    // we want to move
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-    // TODO: Fix so aspect is preserved when changing size
-    // TODO: Fix the resize issue
-    // TODO: Check what happen without this
-    // projection =
-    // glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    // projection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 300.0f);
-
     shader.use();
     shader.setMat4("model", model);
-    shader.setMat4("view", view);
 
     /*
     float vertices[] = {
@@ -63,7 +34,7 @@ void Renderer::init() {
         -0.5f, 0.5f,  0.0f, 0.0f, 1.0f  // top left
     };
     */
-    const auto vertices = Renderer::getCubeVertices();
+    const auto vertices = getCubeVerticesWithTexture();
     // std::cout << sizeof(vertices) << vertices.data()[0] << std::endl;
 
     glGenVertexArrays(1, &VAO);
@@ -111,6 +82,7 @@ void Renderer::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.setMat4("view", camera.getViewMatrix());
+    shader.setMat4("projection", projection.getMatrix());
 
     glBindVertexArray(VAO);
     // glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -135,32 +107,4 @@ const std::array<glm::vec3, 10> &Renderer::getCubePositions() {
         glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
         glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
     return cubePositions;
-}
-
-const std::array<float, 180> &Renderer::getCubeVertices() {
-    static const std::array<float, 180> vertices = {
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
-
-        -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
-
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
-    return vertices;
 }

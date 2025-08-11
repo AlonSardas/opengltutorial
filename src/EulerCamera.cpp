@@ -1,4 +1,5 @@
 #include "EulerCamera.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 EulerCamera::EulerCamera(glm::vec3 position, float yaw, float pitch)
     : position(position), yaw(yaw), pitch(pitch), worldUp(0.0f, 1.0f, 0.0f) {

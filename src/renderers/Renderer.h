@@ -1,0 +1,27 @@
+#pragma once
+
+#include "PerspectiveProjection.h"
+#include "QuatCamera.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "renderers/IRenderer.h"
+#include <array>
+
+class Renderer : public IRenderer {
+  public:
+    Renderer(const QuatCamera &c, PerspectiveProjection &proj);
+    ~Renderer() override;
+    void init() override;
+    void render() override;
+    void onResize(int width, int height) override;
+
+  private:
+    const QuatCamera &camera;
+    const PerspectiveProjection &projection;
+    Shader shader;
+    unsigned int VBO, VAO, EBO;
+    glm::mat4 model;
+    Texture texture1, texture2;
+
+    static const std::array<glm::vec3, 10> &getCubePositions();
+};
