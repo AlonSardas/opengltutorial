@@ -7,7 +7,8 @@ https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/1.colors/colors.c
 #include <GLFW/glfw3.h>
 
 LightingRenderer::LightingRenderer(const QuatCamera &c, PerspectiveProjection &proj)
-    : lightingShader("shaders/transformAndNormals.vs", "shaders/materialLightFragment.fs"),
+    : lightingShader("shaders/transformNormalsTexture.vs", "shaders/materialLightFragment.fs"),
+      // lightingShader("shaders/transformAndNormals.vs", "shaders/materialLightFragment.fs"),
       lightCubeShader("shaders/transform.vs", "shaders/solidLightSource.fs"), camera(c), projection(proj),
       lightPos(1.2f, 1.0f, 2.0f) {
     glGenVertexArrays(1, &lightVAO);
@@ -26,7 +27,7 @@ void LightingRenderer::onResize(int width, int height) { glViewport(0, 0, width,
 void LightingRenderer::init() {
     glEnable(GL_DEPTH_TEST);
 
-    const auto vertices = getCubeVerticesWithNormals();
+    const auto vertices = getCubeVerticesWithNormalsAndTexture();
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -35,10 +36,12 @@ void LightingRenderer::init() {
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
@@ -46,18 +49,28 @@ void LightingRenderer::init() {
     // contains the data.
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // set the vertex attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+
+    texture.bind(0);
+    texture.setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    texture.setMinMagFilters(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    texture.loadImage("resources/container2.png", false);
+    textureSpecular.bind(1);
+    textureSpecular.setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    textureSpecular.setMinMagFilters(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    textureSpecular.loadImage("resources/container2_specular.png", false);
 
     // don't forget to use the corresponding shader program first (to set the uniform)
     lightingShader.use();
-    lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
     lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
     lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
     lightingShader.setFloat("material.shininess", 32.0f);
     lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f); // darken diffuse light a bit
     lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
     lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+    lightingShader.setInt("material.diffuse", 0);
+    lightingShader.setInt("material.specular", 1);
 }
 
 void LightingRenderer::render() {
@@ -80,12 +93,16 @@ void LightingRenderer::render() {
     lightingShader.setVec3("viewPos", camera.getPosition());
 
     glm::vec3 lightColor;
-    lightColor.x = sin(glfwGetTime() * 2.0f);
-    lightColor.y = sin(glfwGetTime() * 0.7f);
-    lightColor.z = sin(glfwGetTime() * 1.3f);
-
-    glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+    bool shouldChangeLightColor = false;
+    if (shouldChangeLightColor) {
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+    } else {
+        lightColor = glm::vec3(1.0f);
+    }
+    glm::vec3 diffuseColor = lightColor * glm::vec3(0.7f);
+    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.8f);
 
     lightingShader.setVec3("light.ambient", ambientColor);
     lightingShader.setVec3("light.diffuse", diffuseColor);
@@ -98,7 +115,7 @@ void LightingRenderer::render() {
 
     model = glm::mat4(1.0f);
     glm::vec3 baseLightPos = {1.2f, 1.0f, 2.0f};
-    bool shouldMoveLightSource = false;
+    bool shouldMoveLightSource = true;
     if (shouldMoveLightSource) {
         model = glm::rotate(model, glm::radians(timeValue * velocity), glm::vec3(0.0, 1.0, 0.0));
         model = glm::translate(model, baseLightPos);

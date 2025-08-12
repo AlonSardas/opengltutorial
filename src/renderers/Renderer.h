@@ -1,10 +1,10 @@
 #pragma once
 
 #include "PerspectiveProjection.h"
-#include "QuatCamera.h"
 #include "Shader.h"
-#include "Texture.h"
+#include "cameras/QuatCamera.h"
 #include "renderers/IRenderer.h"
+#include "texture/Texture.h"
 #include <array>
 
 class Renderer : public IRenderer {

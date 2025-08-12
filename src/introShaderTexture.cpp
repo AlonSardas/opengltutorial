@@ -21,7 +21,7 @@ https://www.songho.ca/opengl/gl_projectionmatrix.html
 
 #include "Shader.h"
 #include "glmtest.h"
-#include "stb_image.h"
+#include "texture/stb_image.h"
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <glad/glad.h>
@@ -32,33 +32,29 @@ https://www.songho.ca/opengl/gl_projectionmatrix.html
 
 GLFWwindow *initWindow();
 int run(GLFWwindow *window);
-unsigned int createShaderProgram(const char *vertexShaderSrc,
-                                 const char *fragmentShaderSrc);
+unsigned int createShaderProgram(const char *vertexShaderSrc, const char *fragmentShaderSrc);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
-unsigned int loadTexture(const char *filePath, bool flipVertically,
-                         bool withAlpha, GLenum wrapX = GL_MIRRORED_REPEAT,
+unsigned int loadTexture(const char *filePath, bool flipVertically, bool withAlpha, GLenum wrapX = GL_MIRRORED_REPEAT,
                          GLenum wrapYGL_MIRRORED_REPEAT = GL_MIRRORED_REPEAT);
 
-const char *vertexShaderSource =
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "out vec4 vertexColor;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
-    "}\0";
+const char *vertexShaderSource = "#version 330 core\n"
+                                 "layout (location = 0) in vec3 aPos;\n"
+                                 "out vec4 vertexColor;\n"
+                                 "void main()\n"
+                                 "{\n"
+                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                 "   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+                                 "}\0";
 
-const char *emptyFragmentShaderSource =
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec4 vertexColor; // the input variable from the vertex shader (same "
-    "name and same type)\n"
-    "void main()\n"
-    "{\n"
-    "    FragColor = vertexColor;\n"
-    "}\0";
+const char *emptyFragmentShaderSource = "#version 330 core\n"
+                                        "out vec4 FragColor;\n"
+                                        "in vec4 vertexColor; // the input variable from the vertex shader (same "
+                                        "name and same type)\n"
+                                        "void main()\n"
+                                        "{\n"
+                                        "    FragColor = vertexColor;\n"
+                                        "}\0";
 const char *fragmentShaderWithUniformSource = "#version 330 core\n"
                                               "out vec4 FragColor;\n"
                                               "uniform vec4 ourColor;\n"
@@ -67,13 +63,12 @@ const char *fragmentShaderWithUniformSource = "#version 330 core\n"
                                               "FragColor = ourColor;\n"
                                               "}\0";
 
-const char *fragmentShaderSource2 =
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "FragColor = vec4(0.0f, 0.9f, 0.95f, 1.0f);\n"
-    "}\0";
+const char *fragmentShaderSource2 = "#version 330 core\n"
+                                    "out vec4 FragColor;\n"
+                                    "void main()\n"
+                                    "{\n"
+                                    "FragColor = vec4(0.0f, 0.9f, 0.95f, 1.0f);\n"
+                                    "}\0";
 
 float mixRatio = 0.5f;
 float mixRatioStep = 0.01;
@@ -95,8 +90,7 @@ int mainIntro() {
 int run(GLFWwindow *window) {
     Shader ourShader("shaders/vertexAndColor.vs", "shaders/fragmentAdapter.fs");
 
-    unsigned int shaderProgram2 = createShaderProgram(
-        vertexShaderSource, fragmentShaderWithUniformSource);
+    unsigned int shaderProgram2 = createShaderProgram(vertexShaderSource, fragmentShaderWithUniformSource);
     if (shaderProgram2 == 0) {
         return -1;
     }
@@ -158,12 +152,10 @@ int run(GLFWwindow *window) {
 
     // copy our index array in a element buffer for OpenGL to use
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
     // note that this is allowed, the call to glVertexAttribPointer registered
@@ -185,15 +177,12 @@ int run(GLFWwindow *window) {
         -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
         0.0f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f  // top ;
     };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesAndColors), verticesAndColors,
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesAndColors), verticesAndColors, GL_STATIC_DRAW);
     // then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-                          (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
     // and color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -204,8 +193,7 @@ int run(GLFWwindow *window) {
         return -1;
     }
 
-    Shader textureShader("shaders/textureAndTransform.vs",
-                         "shaders/textureMergeFragment.fs");
+    Shader textureShader("shaders/textureAndTransform.vs", "shaders/textureMergeFragment.fs");
     // Shader textureShader("shaders/vertexColorTexture.vs",
     // "shaders/textureMergeFragment.fs");
     float verticesAndTexture[] = {
@@ -226,24 +214,19 @@ int run(GLFWwindow *window) {
 
     glBindVertexArray(VAO3);
     glBindBuffer(GL_ARRAY_BUFFER, VBO3);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesAndTexture),
-                 verticesAndTexture, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesAndTexture), verticesAndTexture, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO3);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesTexture),
-                 indicesTexture, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesTexture), indicesTexture, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     // glEnableVertexAttribArray(1);
     // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          (void *)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     glm::mat4 trans = glm::mat4(1.0f);
@@ -254,12 +237,10 @@ int run(GLFWwindow *window) {
     unsigned int transformLoc = textureShader.getUniformLocation("transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
-    unsigned int texture1 = loadTexture("resources/container.jpg", false, false,
-                                        GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    unsigned int texture1 = loadTexture("resources/container.jpg", false, false, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     textureShader.setInt("texture1", 0);
 
-    unsigned int texture2 = loadTexture("resources/awesomeface.png", true, true,
-                                        GL_REPEAT, GL_REPEAT);
+    unsigned int texture2 = loadTexture("resources/awesomeface.png", true, true, GL_REPEAT, GL_REPEAT);
     textureShader.setInt("texture2", 1);
 
     textureShader.setFloat("mixRatio", mixRatio);
@@ -309,8 +290,7 @@ int run(GLFWwindow *window) {
 
         glm::mat4 trans = glm::mat4(1.0f);
         trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-        trans = glm::rotate(trans, (float)glfwGetTime(),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
         glBindVertexArray(VAO3);
@@ -366,8 +346,7 @@ GLFWwindow *initWindow() {
     return window;
 }
 
-unsigned int createShaderProgram(const char *vertexShaderSrc,
-                                 const char *fragmentShaderSrc) {
+unsigned int createShaderProgram(const char *vertexShaderSrc, const char *fragmentShaderSrc) {
     // vertex shader
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -379,8 +358,7 @@ unsigned int createShaderProgram(const char *vertexShaderSrc,
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
         return 0;
     }
 
@@ -392,8 +370,7 @@ unsigned int createShaderProgram(const char *vertexShaderSrc,
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         return 0;
     }
 
@@ -407,8 +384,7 @@ unsigned int createShaderProgram(const char *vertexShaderSrc,
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-                  << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         return 0;
     }
 
@@ -418,9 +394,7 @@ unsigned int createShaderProgram(const char *vertexShaderSrc,
     return shaderProgram;
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
 
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -432,8 +406,7 @@ void processInput(GLFWwindow *window) {
     }
 }
 
-unsigned int loadTexture(const char *filePath, bool flipVertically,
-                         bool withAlpha, GLenum wrapX, GLenum wrapY) {
+unsigned int loadTexture(const char *filePath, bool flipVertically, bool withAlpha, GLenum wrapX, GLenum wrapY) {
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -441,21 +414,18 @@ unsigned int loadTexture(const char *filePath, bool flipVertically,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapY);
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(flipVertically);
     unsigned char *data = stbi_load(filePath, &width, &height, &nrChannels, 0);
     if (data == nullptr) {
-        std::string errorMessage =
-            "Could not load image " + std::string(filePath);
+        std::string errorMessage = "Could not load image " + std::string(filePath);
         std::cout << errorMessage << std::endl;
         throw std::runtime_error(errorMessage);
     }
     GLenum rgba = withAlpha ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgba,
-                 GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, rgba, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
 

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "PerspectiveProjection.h"
-#include "QuatCamera.h"
 #include "Shader.h"
+#include "cameras/QuatCamera.h"
 #include "renderers/IRenderer.h"
+#include "texture/Texture.h"
 #include <array>
 
 class LightingRenderer : public IRenderer {
@@ -18,6 +19,7 @@ class LightingRenderer : public IRenderer {
     const QuatCamera &camera;
     const PerspectiveProjection &projection;
     Shader lightingShader, lightCubeShader;
+    Texture texture, textureSpecular;
 
     unsigned int lightVAO, VAO, VBO;
     glm::vec3 lightPos;
