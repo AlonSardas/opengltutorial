@@ -2,8 +2,8 @@
 
 #include "Mouse.h"
 #include "PerspectiveProjection.h"
-#include "cameras/QuatCamera.h"
 #include "Window.h"
+#include "cameras/QuatCamera.h"
 #include "renderers/IRenderer.h"
 #include <memory>
 

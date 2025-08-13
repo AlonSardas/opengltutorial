@@ -41,7 +41,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
-    checkCompileErrors(ID, "PROGRAM");
+    checkLinkingErrors();
 
     // delete the shaders as they're linked into our program now and no longer
     // necessary
@@ -81,27 +81,28 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
 GLint Shader::getUniformLocation(const std::string &name) const {
     GLint location = glGetUniformLocation(ID, name.c_str());
     if (location == -1) {
-        std::string errorMessage =
-            "Uniform '" + name + "' not found or optimized out.";
+        std::string errorMessage = "Uniform '" + name + "' not found or optimized out.";
         std::cout << errorMessage << std::endl;
         throw std::runtime_error(errorMessage);
     }
     return location;
 }
 
-void Shader::checkCompileErrors(const unsigned int &shader,
-                                const std::string &type) {
-    int success;
+void Shader::checkCompileErrors(const unsigned int &shader, const std::string &type) {
+    GLint success;
+    GLchar infoLog[1024];
+
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    glGetProgramiv(shader, GL_LINK_STATUS, &success);
+    glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
+
     if (!success) {
-        char infoLog[512];
-        std::string errorMessage;
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        errorMessage = "ERROR::SHADER::" + type + "::COMPILATION_FAILED\n";
+        std::string errorMessage = "ERROR::SHADER::" + type + "::COMPILATION_FAILED\n";
         errorMessage += infoLog;
-        std::cout << errorMessage << std::endl;
         throw std::runtime_error(errorMessage);
+    } else if (strlen(infoLog) > 0) {
+        std::cerr << "WARNING::SHADER::" << type << "::COMPILATION_LOG\n"
+                  << infoLog << "\n"
+                  << " -- --------------------------------------------------- -- " << std::endl;
     }
 }
 

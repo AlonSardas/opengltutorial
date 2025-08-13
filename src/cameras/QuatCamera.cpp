@@ -1,18 +1,13 @@
 #include "QuatCamera.h"
 
-QuatCamera::QuatCamera(glm::vec3 startPos)
-    : position(startPos), orientation(glm::quat(1, 0, 0, 0)) {
+QuatCamera::QuatCamera(glm::vec3 startPos) : position(startPos), orientation(glm::quat(1, 0, 0, 0)) {
     updateViewMatrix();
 }
 
-void QuatCamera::rotate(float yawDegrees, float pitchDegrees,
-                        float rollDegrees) {
-    glm::quat qYaw = glm::angleAxis(glm::radians(-yawDegrees),
-                                    orientation * glm::vec3(0, 1, 0));
-    glm::quat qPitch = glm::angleAxis(glm::radians(pitchDegrees),
-                                      orientation * glm::vec3(1, 0, 0));
-    glm::quat qRoll = glm::angleAxis(glm::radians(rollDegrees),
-                                     orientation * glm::vec3(0, 0, 1));
+void QuatCamera::rotate(float yawDegrees, float pitchDegrees, float rollDegrees) {
+    glm::quat qYaw = glm::angleAxis(glm::radians(-yawDegrees), orientation * glm::vec3(0, 1, 0));
+    glm::quat qPitch = glm::angleAxis(glm::radians(pitchDegrees), orientation * glm::vec3(1, 0, 0));
+    glm::quat qRoll = glm::angleAxis(glm::radians(rollDegrees), orientation * glm::vec3(0, 0, 1));
     orientation = normalize(qYaw * qPitch * qRoll * orientation);
 
     updateViewMatrix();
@@ -35,6 +30,8 @@ void QuatCamera::moveUp(float amount) {
     position += up * amount;
     updateViewMatrix();
 }
+
+glm::vec3 QuatCamera::getFront() const { return orientation * glm::vec3(0, 0, 1); }
 
 void QuatCamera::updateViewMatrix() {
     // Rotation matrix from orientation quaternion

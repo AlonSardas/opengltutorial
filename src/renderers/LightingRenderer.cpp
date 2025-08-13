@@ -1,5 +1,7 @@
 /*
 https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/1.colors/colors.cpp
+
+https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/5.2.light_casters_point/light_casters_point.cpp
 */
 
 #include "LightingRenderer.h"
@@ -63,31 +65,34 @@ void LightingRenderer::init() {
 
     // don't forget to use the corresponding shader program first (to set the uniform)
     lightingShader.use();
-    lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-    lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
     lightingShader.setFloat("material.shininess", 32.0f);
-    lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f); // darken diffuse light a bit
-    lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-    lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
+
+    lightingShader.setFloat("light.constant", 1.0f);
+    lightingShader.setFloat("light.linear", 0.09f);
+    lightingShader.setFloat("light.quadratic", 0.032f);
+
+    lightingShader.setVec3("directionalLight.direction", -0.2f, -1.0f, -0.3f);
+    lightingShader.setVec3("directionalLight.ambient", glm::vec3(0.1f));
+    lightingShader.setVec3("directionalLight.diffuse", glm::vec3(0.5f));
+    lightingShader.setVec3("directionalLight.specular", glm::vec3(0.2f));
+
+    lightingShader.setFloat("flashlight.cutOff", glm::cos(glm::radians(12.5f)));
+    lightingShader.setFloat("flashlight.outerCutOff", glm::cos(glm::radians(17.5f)));
+    lightingShader.setVec3("flashlight.ambient", 0.1f, 0.1f, 0.1f);
+    lightingShader.setVec3("flashlight.diffuse", 0.8f, 0.8f, 0.8f);
+    lightingShader.setVec3("flashlight.specular", 1.0f, 1.0f, 1.0f);
+    lightingShader.setFloat("flashlight.constant", 1.0f);
+    lightingShader.setFloat("flashlight.linear", 0.09f);
+    lightingShader.setFloat("flashlight.quadratic", 0.032f);
 }
 
 void LightingRenderer::render() {
-    glClearColor(0.5f, 0.4f, 0.2f, 1.0f);
+    glClearColor(background.x, background.y, background.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    // model = glm::translate(model, glm::vec3(1.0f, 1.0f, 0.0f));
-    // model =
-    //     glm::rotate(model, glm::radians(-98.0f), glm::vec3(1.0f, 0.0f,
-    //     0.0f));
-    // model =
-    //     glm::rotate(model, glm::radians(-98.0f), glm::vec3(0.0f,
-    //     0.0f, 1.0f));
-
     lightingShader.use();
-    lightingShader.setMat4("model", model);
     lightingShader.setMat4("view", camera.getViewMatrix());
     lightingShader.setMat4("projection", projection.getMatrix());
     lightingShader.setVec3("viewPos", camera.getPosition());
@@ -101,20 +106,30 @@ void LightingRenderer::render() {
     } else {
         lightColor = glm::vec3(1.0f);
     }
-    glm::vec3 diffuseColor = lightColor * glm::vec3(0.7f);
-    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.8f);
+    glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f);
+    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.3f);
 
     lightingShader.setVec3("light.ambient", ambientColor);
     lightingShader.setVec3("light.diffuse", diffuseColor);
 
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    auto cubePositions = getCubePositions();
+    for (unsigned int i = 0; i < 10; i++) {
+        auto model = glm::mat4(1.0f);
+        model = glm::translate(model, cubePositions[i]);
+        float angle = 20.0f * i;
+        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        lightingShader.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     float timeValue = glfwGetTime();
     float velocity = 20.02f;
 
-    model = glm::mat4(1.0f);
-    glm::vec3 baseLightPos = {1.2f, 1.0f, 2.0f};
+    auto model = glm::mat4(1.0f);
+    glm::vec3 baseLightPos = {2.2f, 1.0f, 2.0f};
     bool shouldMoveLightSource = true;
     if (shouldMoveLightSource) {
         model = glm::rotate(model, glm::radians(timeValue * velocity), glm::vec3(0.0, 1.0, 0.0));
@@ -125,7 +140,10 @@ void LightingRenderer::render() {
     }
     model = glm::scale(model, glm::vec3(0.3f));
     lightPos = model * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    lightingShader.setVec3("lightPos", lightPos);
+    lightingShader.setVec3("light.position", lightPos);
+
+    lightingShader.setVec3("flashlight.position", camera.getPosition());
+    lightingShader.setVec3("flashlight.direction", camera.getFront());
 
     lightCubeShader.use();
     lightCubeShader.setVec3("color", lightColor);
@@ -135,4 +153,13 @@ void LightingRenderer::render() {
 
     glBindVertexArray(lightVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
+const std::array<glm::vec3, 10> &LightingRenderer::getCubePositions() {
+    static const std::array<glm::vec3, 10> cubePositions = {
+        glm::vec3(0.0f, 0.0f, 0.0f),     glm::vec3(2.0f, 5.0f, -15.0f), glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f), glm::vec3(2.4f, -0.4f, -3.5f), glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),   glm::vec3(1.5f, 2.0f, -2.5f),  glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)};
+    return cubePositions;
 }
