@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 EulerCamera::EulerCamera(glm::vec3 position, float yaw, float pitch)
-    : position(position), yaw(yaw), pitch(pitch), worldUp(0.0f, 1.0f, 0.0f) {
+    : position(position), worldUp(0.0f, 1.0f, 0.0f), yaw(yaw), pitch(pitch) {
     updateCameraVectors();
     updateViewMatrix();
 }
@@ -48,6 +48,4 @@ void EulerCamera::updateCameraVectors() {
     up = glm::normalize(glm::cross(right, front));
 }
 
-void EulerCamera::updateViewMatrix() {
-    viewMatrix = glm::lookAt(position, position + front, up);
-}
+void EulerCamera::updateViewMatrix() { viewMatrix = glm::lookAt(position, position + front, up); }

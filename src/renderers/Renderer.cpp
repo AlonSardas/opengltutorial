@@ -2,7 +2,7 @@
 #include "Cube.h"
 
 Renderer::Renderer(const QuatCamera &c, PerspectiveProjection &proj)
-    : shader("shaders/vertexTransformer.vs", "shaders/textureMergeFragment.fs"), camera(c), projection(proj) {}
+    : camera(c), shader("shaders/vertexTransformer.vs", "shaders/textureMergeFragment.fs"), projection(proj) {}
 
 Renderer::~Renderer() {
     glDeleteVertexArrays(1, &VAO);

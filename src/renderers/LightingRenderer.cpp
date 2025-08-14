@@ -9,10 +9,10 @@ https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/5.2.light_casters
 #include <GLFW/glfw3.h>
 
 LightingRenderer::LightingRenderer(const QuatCamera &c, PerspectiveProjection &proj)
-    : lightingShader("shaders/transformNormalsTexture.vs", "shaders/materialLightFragment.fs"),
+    : camera(c), projection(proj),
+      lightingShader("shaders/transformNormalsTexture.vs", "shaders/materialLightFragment.fs"),
       // lightingShader("shaders/transformAndNormals.vs", "shaders/materialLightFragment.fs"),
-      lightCubeShader("shaders/transform.vs", "shaders/solidLightSource.fs"), camera(c), projection(proj),
-      lightPos(1.2f, 1.0f, 2.0f) {
+      lightCubeShader("shaders/transform.vs", "shaders/solidLightSource.fs"), lightPos(1.2f, 1.0f, 2.0f) {
     glGenVertexArrays(1, &lightVAO);
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -69,23 +69,39 @@ void LightingRenderer::init() {
     lightingShader.setInt("material.diffuse", 0);
     lightingShader.setInt("material.specular", 1);
 
-    lightingShader.setFloat("light.constant", 1.0f);
-    lightingShader.setFloat("light.linear", 0.09f);
-    lightingShader.setFloat("light.quadratic", 0.032f);
+    lightingShader.setFloat("movingLight.constant", 1.0f);
+    lightingShader.setFloat("movingLight.linear", 0.09f);
+    lightingShader.setFloat("movingLight.quadratic", 0.032f);
+    lightingShader.setVec3("movingLight.ambient", glm::vec3(0.1f));
+    lightingShader.setVec3("movingLight.diffuse", glm::vec3(0.7f));
 
-    lightingShader.setVec3("directionalLight.direction", -0.2f, -1.0f, -0.3f);
+    lightingShader.setVec3("directionalLight.direction", -0.2f, +1.0f, -0.3f);
     lightingShader.setVec3("directionalLight.ambient", glm::vec3(0.1f));
-    lightingShader.setVec3("directionalLight.diffuse", glm::vec3(0.5f));
-    lightingShader.setVec3("directionalLight.specular", glm::vec3(0.2f));
+    lightingShader.setVec3("directionalLight.diffuse", glm::vec3(1.0f));
+    lightingShader.setVec3("directionalLight.specular", glm::vec3(0.4f));
 
-    lightingShader.setFloat("flashlight.cutOff", glm::cos(glm::radians(12.5f)));
-    lightingShader.setFloat("flashlight.outerCutOff", glm::cos(glm::radians(17.5f)));
+    lightingShader.setFloat("flashlight.cutOff", glm::cos(glm::radians(10.1f)));
+    lightingShader.setFloat("flashlight.outerCutOff", glm::cos(glm::radians(12.5f)));
+    // lightingShader.setFloat("flashlight.cutOff", glm::cos(glm::radians(0.5f)));
+    // lightingShader.setFloat("flashlight.outerCutOff", glm::cos(glm::radians(1.0f)));
     lightingShader.setVec3("flashlight.ambient", 0.1f, 0.1f, 0.1f);
     lightingShader.setVec3("flashlight.diffuse", 0.8f, 0.8f, 0.8f);
     lightingShader.setVec3("flashlight.specular", 1.0f, 1.0f, 1.0f);
     lightingShader.setFloat("flashlight.constant", 1.0f);
     lightingShader.setFloat("flashlight.linear", 0.09f);
     lightingShader.setFloat("flashlight.quadratic", 0.032f);
+
+    auto pointLightPositions = getPointLightPosition();
+    for (size_t i = 0; i < pointLightPositions.size(); ++i) {
+        std::string index = "pointLights[" + std::to_string(i) + "]";
+        lightingShader.setVec3(index + ".position", pointLightPositions[i]);
+        lightingShader.setVec3(index + ".ambient", 0.05f, 0.05f, 0.05f);
+        lightingShader.setVec3(index + ".diffuse", 0.8f, 0.8f, 0.8f);
+        lightingShader.setVec3(index + ".specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat(index + ".constant", 1.0f);
+        lightingShader.setFloat(index + ".linear", 0.09f);
+        lightingShader.setFloat(index + ".quadratic", 0.032f);
+    }
 }
 
 void LightingRenderer::render() {
@@ -98,19 +114,19 @@ void LightingRenderer::render() {
     lightingShader.setVec3("viewPos", camera.getPosition());
 
     glm::vec3 lightColor;
-    bool shouldChangeLightColor = false;
+    bool shouldChangeLightColor = true;
     if (shouldChangeLightColor) {
         lightColor.x = sin(glfwGetTime() * 2.0f);
         lightColor.y = sin(glfwGetTime() * 0.7f);
         lightColor.z = sin(glfwGetTime() * 1.3f);
-    } else {
-        lightColor = glm::vec3(1.0f);
-    }
-    glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f);
-    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.3f);
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.8f);
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.3f);
 
-    lightingShader.setVec3("light.ambient", ambientColor);
-    lightingShader.setVec3("light.diffuse", diffuseColor);
+        lightingShader.setVec3("movingLight.ambient", ambientColor);
+        lightingShader.setVec3("movingLight.diffuse", diffuseColor);
+    } else {
+        lightColor = glm::vec3(0.9f);
+    }
 
     glBindVertexArray(VAO);
 
@@ -140,19 +156,30 @@ void LightingRenderer::render() {
     }
     model = glm::scale(model, glm::vec3(0.3f));
     lightPos = model * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    lightingShader.setVec3("light.position", lightPos);
+    lightingShader.setVec3("movingLight.position", lightPos);
 
     lightingShader.setVec3("flashlight.position", camera.getPosition());
     lightingShader.setVec3("flashlight.direction", camera.getFront());
 
+    glBindVertexArray(lightVAO);
     lightCubeShader.use();
+    // std::cout << lightColor.x << ", " << lightColor.y << std::endl;
     lightCubeShader.setVec3("color", lightColor);
     lightCubeShader.setMat4("model", model);
     lightCubeShader.setMat4("view", camera.getViewMatrix());
     lightCubeShader.setMat4("projection", projection.getMatrix());
 
-    glBindVertexArray(lightVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    lightCubeShader.setVec3("color", glm::vec3(1.0f));
+    auto pointLightPositions = getPointLightPosition();
+    for (unsigned int i = 0; i < pointLightPositions.size(); i++) {
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, pointLightPositions[i]);
+        model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+        lightCubeShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 }
 
 const std::array<glm::vec3, 10> &LightingRenderer::getCubePositions() {
@@ -162,4 +189,10 @@ const std::array<glm::vec3, 10> &LightingRenderer::getCubePositions() {
         glm::vec3(1.3f, -2.0f, -2.5f),   glm::vec3(1.5f, 2.0f, -2.5f),  glm::vec3(1.5f, 0.2f, -1.5f),
         glm::vec3(-1.3f, 1.0f, -1.5f)};
     return cubePositions;
+}
+
+const std::array<glm::vec3, 4> &LightingRenderer::getPointLightPosition() {
+    static const std::array<glm::vec3, 4> positions = {glm::vec3(0.7f, 0.2f, 2.0f), glm::vec3(2.3f, -3.3f, -4.0f),
+                                                       glm::vec3(-4.0f, 2.0f, -12.0f), glm::vec3(0.0f, 0.0f, -3.0f)};
+    return positions;
 }

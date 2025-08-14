@@ -5,8 +5,8 @@
 
 class PerspectiveProjection {
   public:
-    PerspectiveProjection(float fovDegrees = 45.0f, float aspect = 4.0f / 3.0f,
-                          float nearPlane = 0.1f, float farPlane = 100.0f);
+    PerspectiveProjection(float fovDegrees = 45.0f, float aspect = 4.0f / 3.0f, float nearPlane = 0.1f,
+                          float farPlane = 100.0f);
 
     void setFov(float degrees);
     void adjustFov(float deltaDegrees);
@@ -23,10 +23,10 @@ class PerspectiveProjection {
     void updateProjectionMatrix();
     glm::mat4 projection;
 
+    float fov;
     float aspectRatio;
     float nearPlane;
     float farPlane;
-    float fov;
     static constexpr float MIN_FOV = 1.0f;
     static constexpr float MAX_FOV = 70.0f;
 };

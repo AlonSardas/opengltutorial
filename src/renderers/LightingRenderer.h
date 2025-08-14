@@ -27,4 +27,5 @@ class LightingRenderer : public IRenderer {
     static constexpr glm::vec3 background = glm::vec3(0.05f, 0.01f, 0.01f);
 
     static const std::array<glm::vec3, 10> &getCubePositions();
+    static const std::array<glm::vec3, 4> &getPointLightPosition();
 };

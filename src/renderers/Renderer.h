@@ -17,8 +17,8 @@ class Renderer : public IRenderer {
 
   private:
     const QuatCamera &camera;
-    const PerspectiveProjection &projection;
     Shader shader;
+    const PerspectiveProjection &projection;
     unsigned int VBO, VAO, EBO;
     glm::mat4 model;
     Texture texture1, texture2;
