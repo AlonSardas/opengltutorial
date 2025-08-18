@@ -1,8 +1,15 @@
 CXX = g++
 CXXFLAGS = -Wall -Isrc -Iinclude
 
+DEBUGFLAGS = -g -O0 -fsanitize=address,undefined
+RELEASEFLAGS = -O2
+
 LDFLAGS = -L/home/alon/Documents/Dev/OpenGLTutorial/glfw-3.4/build/src \
-		  -lGL -lglfw
+		  -L/home/alon/Documents/Dev/OpenGLTutorial/assimp/bin \
+		  -lGL -lglfw -lassimp
+
+DEBUG_LDFLAGS = -fsanitize=address,undefined
+RELEASE_LDFLAGS =
 
 SRC = $(wildcard src/*.cpp src/*.c src/**/*.cpp src/**/*.c)
 # OBJ = $(SRC:.cpp=.o)
@@ -23,8 +30,14 @@ build/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# $(OUT): $(SRC)
-# 	$(CXX) $(SRC) -o $(OUT) $(CXXFLAGS) $(LDFLAGS)
+debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: LDFLAGS += $(DEBUG_LDFLAGS)
+debug: $(OUT)
+
+release: CXXFLAGS += $(RELEASEFLAGS)
+release: LDFLAGS += $(RELEASE_LDFLAGS)
+release: $(OUT)
 
 clean:
 	rm -f $(OUT)
+	rm -rf build/

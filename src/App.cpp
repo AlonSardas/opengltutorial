@@ -5,15 +5,21 @@ https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/6.3.coordi
 
 https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/7.3.camera_mouse_zoom/camera_mouse_zoom.cpp
 */
+
 #include "App.h"
 #include "renderers/LightingRenderer.h"
+#include "renderers/ModelLoadingExample.h"
 #include "renderers/Renderer.h"
+#include "stb/stb_image_write.h"
+
+void saveScreenshot(const std::string &filename);
 
 App::App()
     : window(INITIAL_WIDTH, INITIAL_HEIGHT, "My openGL app"), camera(),
       projection(45.0f, float(INITIAL_WIDTH) / INITIAL_HEIGHT) {
     // renderer = std::make_unique<Renderer>(camera, projection);
-    renderer = std::make_unique<LightingRenderer>(camera, projection);
+    // renderer = std::make_unique<LightingRenderer>(camera, projection);
+    renderer = std::make_unique<ModelLoadingExample>(camera, projection);
     renderer->init();
     renderer->onResize(INITIAL_WIDTH, INITIAL_HEIGHT);
     window.setAppForCallback(this);
@@ -26,6 +32,8 @@ void App::run() {
         float currentTime = glfwGetTime();
         float deltaTime = currentTime - lastTime;
         lastTime = currentTime;
+
+        // std::cout << "new render " << currentTime << std::endl;
 
         processInput(deltaTime);
 
@@ -76,6 +84,14 @@ void App::processInput(float deltaTime) {
         camera.rollLeft(turnSpeed);
     if (window.getKeyStatus(GLFW_KEY_E) == GLFW_PRESS)
         camera.rollRight(turnSpeed);
+
+    if (window.getKeyStatus(GLFW_KEY_PRINT_SCREEN) == GLFW_PRESS) {
+        saveScreenshot("screenshot.png");
+    }
+    if (window.getKeyStatus(GLFW_KEY_P) == GLFW_PRESS) {
+        std::cout << "printing screen" << std::endl;
+        saveScreenshot("../screenshot.png");
+    }
 }
 
 void App::onMouseMove(double xposIn, double yposIn) {
@@ -87,4 +103,38 @@ void App::onMouseMove(double xposIn, double yposIn) {
 void App::onMouseScroll(double xoffset, double yoffset) {
     auto [dx, dy] = mouse.onMouseScroll(xoffset, yoffset);
     projection.adjustFov(-dy);
+}
+
+void saveScreenshot(const std::string &filename) {
+    // https://vallentin.dev/blog/post/opengl-screenshot
+
+    std::cout << "Capturing screenshot" << std::endl;
+
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    int x = viewport[0];
+    int y = viewport[1];
+    int width = viewport[2];
+    int height = viewport[3];
+    std::vector<unsigned char> pixels(width * height * 3);
+
+    // Read pixels from framebuffer (BGR format)
+    glPixelStorei(GL_PACK_ALIGNMENT, 1); // Make sure rows are packed tightly
+    glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+
+    // Flip the image vertically
+    for (int y = 0; y < height / 2; ++y) {
+        int opposite = height - y - 1;
+        for (int x = 0; x < width * 3; ++x) {
+            std::swap(pixels[y * width * 3 + x], pixels[opposite * width * 3 + x]);
+        }
+    }
+
+    // Write to PNG using stb_image_write
+    if (stbi_write_png(filename.c_str(), width, height, 3, pixels.data(), width * 3)) {
+        std::cout << "Screenshot saved to " << filename << "\n";
+    } else {
+        std::cerr << "Failed to save screenshot to " << filename << "\n";
+    }
 }

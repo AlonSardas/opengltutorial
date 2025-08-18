@@ -21,7 +21,7 @@ https://www.songho.ca/opengl/gl_projectionmatrix.html
 
 #include "Shader.h"
 #include "glmtest.h"
-#include "texture/stb_image.h"
+#include "stb/stb_image.h"
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <glad/glad.h>

@@ -24,10 +24,6 @@ class App {
     Mouse mouse;
     std::unique_ptr<IRenderer> renderer;
 
-    // TODO: Inlcude mouse object
-    bool firstMouse = true;
-    float lastX = 0.0, lastY = 0.0;
-
     static constexpr int INITIAL_WIDTH = 1024;
     static constexpr int INITIAL_HEIGHT = 768;
 };

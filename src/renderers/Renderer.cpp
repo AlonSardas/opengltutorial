@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "Cube.h"
+#include "models/CubeData.h"
 
 Renderer::Renderer(const QuatCamera &c, PerspectiveProjection &proj)
     : camera(c), shader("shaders/vertexTransformer.vs", "shaders/textureMergeFragment.fs"), projection(proj) {}

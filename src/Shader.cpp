@@ -82,7 +82,6 @@ GLint Shader::getUniformLocation(const std::string &name) const {
     GLint location = glGetUniformLocation(ID, name.c_str());
     if (location == -1) {
         std::string errorMessage = "Uniform '" + name + "' not found or optimized out.";
-        std::cout << errorMessage << std::endl;
         throw std::runtime_error(errorMessage);
     }
     return location;

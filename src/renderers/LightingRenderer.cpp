@@ -5,7 +5,7 @@ https://learnopengl.com/code_viewer_gh.php?code=src/2.lighting/5.2.light_casters
 */
 
 #include "LightingRenderer.h"
-#include "Cube.h"
+#include "models/CubeData.h"
 #include <GLFW/glfw3.h>
 
 LightingRenderer::LightingRenderer(const QuatCamera &c, PerspectiveProjection &proj)
