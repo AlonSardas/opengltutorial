@@ -8,6 +8,10 @@ class Texture {
   public:
     Texture();
     ~Texture();
+    Texture(const Texture &) = delete;
+    Texture &operator=(const Texture &) = delete;
+    Texture(Texture &&) = delete;
+    Texture &operator=(Texture &&) = delete;
     void setWrap(GLint wrapX, GLint wrapY);
     void setMinMagFilters(GLint minFilter, GLint magFilter);
     void bind(int textureUnit);

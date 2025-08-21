@@ -10,6 +10,7 @@ https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/7.3.camera
 #include "renderers/LightingRenderer.h"
 #include "renderers/ModelLoadingExample.h"
 #include "renderers/Renderer.h"
+#include "renderers/StencilGlowExample.h"
 #include "stb/stb_image_write.h"
 
 void saveScreenshot(const std::string &filename);
@@ -19,7 +20,8 @@ App::App()
       projection(45.0f, float(INITIAL_WIDTH) / INITIAL_HEIGHT) {
     // renderer = std::make_unique<Renderer>(camera, projection);
     // renderer = std::make_unique<LightingRenderer>(camera, projection);
-    renderer = std::make_unique<ModelLoadingExample>(camera, projection);
+    // renderer = std::make_unique<ModelLoadingExample>(camera, projection);
+    renderer = std::make_unique<StencilGlowExample>(camera, projection);
     renderer->init();
     renderer->onResize(INITIAL_WIDTH, INITIAL_HEIGHT);
     window.setAppForCallback(this);

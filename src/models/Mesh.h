@@ -37,7 +37,10 @@ class Mesh {
     Mesh(std::vector<Vertex> &&vertices, std::vector<unsigned int> &&indices, std::vector<TextureData> &&textures);
     Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices,
          const std::vector<TextureData> &textures);
-    ~Mesh();
+    Mesh(Mesh&&other) noexcept;
+    Mesh(const Mesh &) = delete;
+    Mesh &operator=(const Mesh &) = delete;
+      ~Mesh();
 
     void draw(Shader &shader);
 

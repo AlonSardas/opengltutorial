@@ -10,14 +10,22 @@ Mesh::Mesh(const std::vector<Vertex> &v, const std::vector<unsigned int> &i, con
     setupMesh();
 }
 
+Mesh::Mesh(Mesh &&other) noexcept
+    : vertices(std::move(other.vertices)), indices(std::move(other.indices)), textures(std::move(other.textures)),
+      VAO(other.VAO), VBO(other.VBO), EBO(other.EBO) {
+    // Reset other's OpenGL resource handles to 0 so they won't be deleted in its destructor
+    other.VAO = 0;
+    other.VBO = 0;
+    other.EBO = 0;
+}
+
 Mesh::~Mesh() {
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 }
 
 void Mesh::setupMesh() {
-    // create buffers/arrays
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
