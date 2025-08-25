@@ -8,6 +8,7 @@ https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/7.3.camera
 
 #include "App.h"
 #include "renderers/LightingRenderer.h"
+#include "renderers/MirrorsRenderer.h"
 #include "renderers/ModelLoadingExample.h"
 #include "renderers/Renderer.h"
 #include "renderers/StencilGlowExample.h"
@@ -21,7 +22,8 @@ App::App()
     // renderer = std::make_unique<Renderer>(camera, projection);
     // renderer = std::make_unique<LightingRenderer>(camera, projection);
     // renderer = std::make_unique<ModelLoadingExample>(camera, projection);
-    renderer = std::make_unique<StencilGlowExample>(camera, projection);
+    // renderer = std::make_unique<StencilGlowExample>(camera, projection);
+    renderer = std::make_unique<MirrorsRenderer>(camera, projection);
     renderer->init();
     renderer->onResize(INITIAL_WIDTH, INITIAL_HEIGHT);
     window.setAppForCallback(this);
@@ -34,8 +36,6 @@ void App::run() {
         float currentTime = glfwGetTime();
         float deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-
-        // std::cout << "new render " << currentTime << std::endl;
 
         processInput(deltaTime);
 
@@ -52,12 +52,8 @@ void App::onResize(int width, int height) {
 }
 
 void App::processInput(float deltaTime) {
-    const float moveSpeed = 3.0f * deltaTime;  // units per second
+    const float moveSpeed = 4.5f * deltaTime;  // units per second
     const float turnSpeed = 45.0f * deltaTime; // degrees per second
-
-    if (window.getKeyStatus(GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        window.setShouldClose(true);
-    }
 
     // --- Movement (WASD + RF) ---
     if (window.getKeyStatus(GLFW_KEY_W) == GLFW_PRESS)
@@ -86,25 +82,54 @@ void App::processInput(float deltaTime) {
         camera.rollLeft(turnSpeed);
     if (window.getKeyStatus(GLFW_KEY_E) == GLFW_PRESS)
         camera.rollRight(turnSpeed);
-
-    if (window.getKeyStatus(GLFW_KEY_PRINT_SCREEN) == GLFW_PRESS) {
-        saveScreenshot("screenshot.png");
-    }
-    if (window.getKeyStatus(GLFW_KEY_P) == GLFW_PRESS) {
-        std::cout << "printing screen" << std::endl;
-        saveScreenshot("../screenshot.png");
-    }
 }
 
 void App::onMouseMove(double xposIn, double yposIn) {
+    if (cursorEnabled) {
+        return;
+    }
     auto [dx, dy] = mouse.onMouseMove(xposIn, yposIn);
-    // std::cout << dx << ", " << dy << std::endl;
+    // std::cout << "Mouse moved" << xposIn << ", " << yposIn << " dx=" << dx << " dy=" << dy << std::endl;
     camera.rotate(dx, dy);
 }
 
 void App::onMouseScroll(double xoffset, double yoffset) {
+    if (cursorEnabled) {
+        return;
+    }
     auto [dx, dy] = mouse.onMouseScroll(xoffset, yoffset);
     projection.adjustFov(-dy);
+}
+
+void App::onMouseButton(int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        if (cursorEnabled) {
+            cursorEnabled = false;
+            glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+    }
+}
+
+void App::onKeyChanged(int key, int scancode, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_ESCAPE:
+            if (!cursorEnabled) {
+                cursorEnabled = true;
+                glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                mouse.resetPosition();
+            }
+            break;
+        case GLFW_KEY_F11:
+            // mouse.resetPosition();
+            window.toggleFullscreen();
+            // mouse.resetPosition();
+            break;
+        case GLFW_KEY_P:
+            saveScreenshot("../screenshot.png");
+            break;
+        }
+    }
 }
 
 void saveScreenshot(const std::string &filename) {

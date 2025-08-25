@@ -19,8 +19,7 @@ Good source for projectino matrices
 https://www.songho.ca/opengl/gl_projectionmatrix.html
 */
 
-#include "Shader.h"
-#include "glmtest.h"
+#include "graphics/Shader.h"
 #include "stb/stb_image.h"
 #include <GLFW/glfw3.h>
 #include <cmath>

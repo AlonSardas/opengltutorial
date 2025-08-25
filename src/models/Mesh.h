@@ -1,7 +1,7 @@
 #pragma once
 
+#include "graphics/Shader.h"
 #include "models/TextureData.h"
-#include <Shader.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -37,10 +37,11 @@ class Mesh {
     Mesh(std::vector<Vertex> &&vertices, std::vector<unsigned int> &&indices, std::vector<TextureData> &&textures);
     Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices,
          const std::vector<TextureData> &textures);
-    Mesh(Mesh&&other) noexcept;
+    Mesh(Mesh &&other) noexcept;
+    Mesh &operator=(Mesh &&other) = delete;
     Mesh(const Mesh &) = delete;
     Mesh &operator=(const Mesh &) = delete;
-      ~Mesh();
+    ~Mesh();
 
     void draw(Shader &shader);
 

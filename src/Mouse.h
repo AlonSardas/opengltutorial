@@ -14,6 +14,7 @@ class Mouse {
     float getSensitivity() const { return sensitivity; }
     void setScrollSensitivity(float s) { scrollSensitivity = s; }
     float getScrollSensitivity() const { return scrollSensitivity; }
+    void resetPosition() { firstMouse = true; }
 
   private:
     bool firstMouse;

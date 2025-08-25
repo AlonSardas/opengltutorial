@@ -1,7 +1,6 @@
 #include "Cube.h"
 #include "CubeData.h"
 
-// const std::array<float, 108> Cube::vertices = getCubeVertices();
 const std::array<float, 288> Cube::vertices = getCubeVerticesWithNormalsAndTexture();
 
 int cubeCount = 0;

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "PerspectiveProjection.h"
-#include "Shader.h"
 #include "cameras/QuatCamera.h"
+#include "graphics/PerspectiveProjection.h"
+#include "graphics/Shader.h"
 #include "models/Cube.h"
 #include "models/Model.h"
-// #include "models/badmodel.h"
 #include "renderers/IRenderer.h"
 #include <optional>
 

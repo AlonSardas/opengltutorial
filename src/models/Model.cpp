@@ -36,11 +36,10 @@ void Model::loadModel(string const &path) {
 
 void Model::processNode(aiNode *node, const aiScene *scene) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-        cout << "adding node " << i << endl;
+        // cout << "adding node " << i << endl;
 
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(processMesh(mesh, scene));
-        // meshes.emplace_back(processMesh(mesh, scene));
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -56,7 +55,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     vertices.reserve(mesh->mNumVertices);
     indices.reserve(mesh->mNumFaces * 3); // Assuming triangulation
 
-    cout << "Adding " << mesh->mNumVertices << " vertices" << endl;
+    // cout << "Adding " << mesh->mNumVertices << " vertices" << endl;
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex;
         glm::vec3 vector;
@@ -94,7 +93,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         vertices.push_back(vertex);
     }
 
-    cout << "Adding " << mesh->mNumFaces << " faces" << endl;
+    // cout << "Adding " << mesh->mNumFaces << " faces" << endl;
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
         const aiFace &face = mesh->mFaces[i];
         // aiFace face = mesh->mFaces[i];
@@ -125,7 +124,7 @@ vector<TextureData> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType t
     vector<TextureData> textures;
     unsigned int textureCount = mat->GetTextureCount(type);
     for (unsigned int i = 0; i < textureCount; i++) {
-        cout << "loading texture " << i << "/" << textureCount << endl;
+        // cout << "loading texture " << i << "/" << textureCount << endl;
         aiString str;
         mat->GetTexture(type, i, &str);
         bool skip = false;

@@ -2,10 +2,9 @@
 #include "stb/stb_image.h"
 
 ModelLoadingExample::ModelLoadingExample(const QuatCamera &c, PerspectiveProjection &proj)
-    : camera(c), projection(proj),
-      shader("shaders/vertexTransformer2.vs", "shaders/fragmentAdapterWithTexture.fs"
-             //   shader("../modelloadertest/1.model_loading.vs", "../modelloadertest/1.model_loading.fs"
-      ) {}
+    : camera(c), projection(proj), shader("shaders/vertexTransformer2.vs", "shaders/fragmentAdapterWithTexture.fs")
+//   shader("../modelloadertest/1.model_loading.vs", "../modelloadertest/1.model_loading.fs")
+{}
 
 ModelLoadingExample::~ModelLoadingExample() {}
 

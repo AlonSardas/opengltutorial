@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Mesh.h"
-#include "Shader.h"
-// #include "badmesh.h"
+#include "graphics/Shader.h"
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <string>
@@ -18,7 +17,11 @@ class Model {
     bool gammaCorrection;
 
     Model(const std::string &path, bool gamma = false);
-  ~Model();
+    ~Model();
+    Model(const Model &) = delete;
+    Model &operator=(const Model &) = delete;
+    Model(Model &&) = delete;
+    Model &operator=(Model &&) = delete;
 
     void draw(Shader &shader);
 

@@ -24,9 +24,12 @@ Window::Window(int w, int h, const char *title) {
     glfwSetFramebufferSizeCallback(handle, framebufferSizeCallback);
     glfwSetCursorPosCallback(handle, mouseMoveCallback);
     glfwSetScrollCallback(handle, mouseScrollCallback);
+    glfwSetMouseButtonCallback(handle, mouseButtonCallback);
+    glfwSetKeyCallback(handle, keyCallback);
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     // if (glfwRawMouseMotionSupported()) {
     //     std::cout << "raw movement support" << std::endl;
     //     glfwSetInputMode(handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
@@ -50,18 +53,39 @@ bool Window::shouldClose() const { return glfwWindowShouldClose(handle); }
 
 void Window::swapBuffers() { glfwSwapBuffers(handle); }
 
-void Window::setAppForCallback(App *app) {
-    glfwSetWindowUserPointer(handle, app);
+void Window::setAppForCallback(App *app) { glfwSetWindowUserPointer(handle, app); }
+
+void Window::setFullscreenMode(bool mode) {
+    if (mode == fullscreenMode) {
+        return;
+    }
+
+    fullscreenMode = mode;
+    if (fullscreenMode) {
+        // Store current state
+        glfwGetWindowPos(handle, &windowedPosX, &windowedPosY);
+        glfwGetWindowSize(handle, &windowedWidth, &windowedHeight);
+
+        // Go borderless fullscreen
+        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+        glfwSetWindowAttrib(handle, GLFW_DECORATED, GLFW_FALSE);
+        glfwSetWindowPos(handle, 0, 0);
+        glfwSetWindowSize(handle, mode->width, mode->height);
+    } else {
+        // Restore window
+        glfwSetWindowAttrib(handle, GLFW_DECORATED, GLFW_TRUE);
+        glfwSetWindowPos(handle, windowedPosX, windowedPosY);
+        glfwSetWindowSize(handle, windowedWidth, windowedHeight);
+    }
 }
 
-void Window::framebufferSizeCallback(GLFWwindow *window, int width,
-                                     int height) {
+void Window::framebufferSizeCallback(GLFWwindow *window, int width, int height) {
     App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
     if (app) {
         app->onResize(width, height);
     } else {
-        std::cerr << "Could not find app instance to call onResize"
-                  << std::endl;
+        std::cerr << "Could not find app instance to call onResize" << std::endl;
     }
 }
 
@@ -70,18 +94,33 @@ void Window::mouseMoveCallback(GLFWwindow *window, double xpos, double ypos) {
     if (app) {
         app->onMouseMove(xpos, ypos);
     } else {
-        std::cerr << "Could not find app instance to call onMouseMove"
-                  << std::endl;
+        std::cerr << "Could not find app instance to call onMouseMove" << std::endl;
     }
 }
 
-void Window::mouseScrollCallback(GLFWwindow *window, double xoffset,
-                                 double yoffset) {
+void Window::mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
     App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
     if (app) {
         app->onMouseScroll(xoffset, yoffset);
     } else {
-        std::cerr << "Could not find app instance to call onMouseScroll"
-                  << std::endl;
+        std::cerr << "Could not find app instance to call onMouseScroll" << std::endl;
+    }
+}
+
+void Window::mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+    App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
+    if (app) {
+        app->onMouseButton(button, action, mods);
+    } else {
+        std::cerr << "Could not find app instance to call onMouseButton" << std::endl;
+    }
+}
+
+void Window::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    App *app = static_cast<App *>(glfwGetWindowUserPointer(window));
+    if (app) {
+        app->onKeyChanged(key, scancode, action, mods);
+    } else {
+        std::cerr << "Could not find app instance to call onKeyChanged" << std::endl;
     }
 }

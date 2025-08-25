@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Shader.h"
-#include "texture/Texture.h"
+#include "graphics/Shader.h"
+#include "graphics/Texture.h"
 #include <array>
 #include <optional>
 
