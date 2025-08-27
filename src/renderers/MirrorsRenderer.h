@@ -5,6 +5,7 @@
 #include "graphics/PerspectiveProjection.h"
 #include "graphics/Shader.h"
 #include "models/Cube.h"
+#include "models/LayeredMirror.h"
 #include "models/Mirror.h"
 #include "models/Model.h"
 #include "models/ScreenQuad.h"
@@ -20,13 +21,18 @@ class MirrorsRenderer : public IRenderer {
     void onResize(int width, int height) override;
 
   private:
-    void renderScene();
+    void renderScene(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
+    void renderMirrorRecursive(std::vector<Mirror *> allMirrors, Mirror *mirror, int width, int height, int depth,
+                               const glm::vec3 &viewerPos);
+    void renderLayeredMirror(std::vector<LayeredMirror *> allMirrors, LayeredMirror *mirror, int width, int height,
+                             int depth, int maxDepth, const glm::vec3 &viewerPos);
 
     float width = 0.0f, height = 0.0f;
     QuatCamera &camera;
     PerspectiveProjection &projection;
     Shader shader, screenShader;
-    std::optional<Mirror> mirror1;
+    std::optional<Mirror> mirror1, mirror2;
+    std::optional<LayeredMirror> layeredMirror1, layeredMirror2;
     std::optional<Model> scene;
     float scaleFactor = 0.05f;
     std::optional<Framebuffer> framebuffer;

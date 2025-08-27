@@ -7,12 +7,10 @@
 
 class Mirror {
   public:
-    Mirror();
+    Mirror(const glm::vec3 &pos, const glm::vec3 &normal, float width, float height, int textureWidth = 256,
+           int textureHeight = 256);
 
-    void init(const glm::vec3 &pos, const glm::vec3 &normal, float width, float height, int textureWidth = 256,
-              int textureHeight = 256);
-
-    void update(const glm::vec3 &cameraPos, const glm::mat4 &viewMatrix, const glm::mat4 &mainProjection);
+    void update(const glm::vec3 &cameraPos);
 
     void beginMirrorRender(int screenWidth, int screenHeight);
     void endMirrorRender();
@@ -23,6 +21,7 @@ class Mirror {
     const glm::mat4 &getProjectionMatrix() const { return mirrorProjection; }
     const glm::vec3 &getPosition() const { return position; }
     const glm::vec3 &getNormal() const { return normal; }
+    const glm::vec3 &getReflectedPos() const { return reflectedCameraPos; }
     GLuint getTexture() const { return framebuffer.getTexture(); }
 
     void setPosition(const glm::vec3 &pos) { position = pos; }
@@ -30,7 +29,7 @@ class Mirror {
     void setRenderDistance(float distance) { renderDistance = distance; }
     void setActive(bool isActive) { active = isActive; }
 
-    void draw();
+    void draw(const glm::mat4 &viewMatrix, const glm::mat4 &mainProjection);
 
   private:
     Framebuffer framebuffer;
@@ -46,11 +45,13 @@ class Mirror {
     float renderDistance;
     bool active;
 
+    glm::vec3 reflectedCameraPos;
     glm::mat4 mirrorView;
     glm::mat4 mirrorProjection;
 
     Quad quad;
     Shader shader;
 
-    void updateMatrices(const glm::vec3 &cameraPos, const glm::mat4 &viewMatrix, const glm::mat4 &mainProjection);
+    void updateMatrices(const glm::vec3 &cameraPos);
+    void init(int textureWidth = 256, int textureHeight = 256);
 };

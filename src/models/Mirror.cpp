@@ -1,18 +1,14 @@
 #include "Mirror.h"
 #include <iostream>
 
-Mirror::Mirror()
-    : position(0.0f, 0.0f, 0.0f), normal(0.0f, 0.0f, 1.0f), upVector(0.0f, 1.0f, 0.0f), mirrorWidth(1.0f),
-      mirrorHeight(1.0f), renderDistance(50.0f), active(true),
-      shader("shaders/mirrorTransformer.vs", "shaders/mirrorTexture.fs") {}
+Mirror::Mirror(const glm::vec3 &pos, const glm::vec3 &norm, float width, float height, int textureWidth,
+               int textureHeight)
+    : position(pos), normal(glm::normalize(norm)), upVector(0.0f, 1.0f, 0.0f), mirrorWidth(width), mirrorHeight(height),
+      renderDistance(50.0f), active(true), shader("shaders/mirrorTransformer.vs", "shaders/mirrorTexture.fs") {
+    init(textureWidth, textureHeight);
+}
 
-void Mirror::init(const glm::vec3 &pos, const glm::vec3 &norm, float width, float height, int textureWidth,
-                  int textureHeight) {
-    position = pos;
-    normal = glm::normalize(norm);
-    mirrorWidth = width;
-    mirrorHeight = height;
-
+void Mirror::init(int textureWidth, int textureHeight) {
     // Orient the mirror quad according to its normal
     // Create rotation matrix to align quad with mirror normal
     glm::vec3 forward = -normal; // Mirror faces opposite to normal
@@ -22,31 +18,27 @@ void Mirror::init(const glm::vec3 &pos, const glm::vec3 &norm, float width, floa
 
     framebuffer.resize(textureWidth, textureHeight);
 
-    std::cout << "Mirror initialized at (" << pos.x << ", " << pos.y << ", " << pos.z << ")" << ", normal=(" << normal.x
-              << ", " << normal.y << ", " << normal.z << ")" << "with resolution " << textureWidth << "x"
-              << textureHeight << std::endl;
+    std::cout << "Mirror initialized at (" << position.x << ", " << position.y << ", " << position.z << ")"
+              << ", normal=(" << normal.x << ", " << normal.y << ", " << normal.z << ")" << "with resolution "
+              << textureWidth << "x" << textureHeight << std::endl;
 }
 
-void Mirror::update(const glm::vec3 &cameraPos, const glm::mat4 &viewMatrix, const glm::mat4 &mainProjection) {
+void Mirror::update(const glm::vec3 &cameraPos) {
     if (!active) {
         return;
     }
 
-    updateMatrices(cameraPos, viewMatrix, mainProjection);
+    updateMatrices(cameraPos);
 }
 
-void Mirror::updateMatrices(const glm::vec3 &cameraPos, const glm::mat4 &viewMatrix, const glm::mat4 &mainProjection) {
-    shader.use();
-    shader.setMat4("view", viewMatrix);
-    shader.setMat4("projection", mainProjection);
-
+void Mirror::updateMatrices(const glm::vec3 &cameraPos) {
     // Calculate mirror camera position (reflected camera position)
     glm::vec3 cameraToMirror = position - cameraPos;
     float distanceToMirror = glm::dot(cameraToMirror, normal);
-    glm::vec3 reflectedCameraPos = cameraPos + 2.0f * distanceToMirror * normal;
+    reflectedCameraPos = cameraPos + 2.0f * distanceToMirror * normal;
 
-    std::cout << "reflected pos (" << reflectedCameraPos.x << ", " << reflectedCameraPos.y << ", "
-              << reflectedCameraPos.z << ")" << std::endl;
+    // std::cout << "reflected pos (" << reflectedCameraPos.x << ", " << reflectedCameraPos.y << ", "
+    //           << reflectedCameraPos.z << ")" << std::endl;
 
     // Calculate mirror view matrix (looking in opposite direction of normal)
     glm::vec3 mirrorForward = -normal;
@@ -61,14 +53,17 @@ void Mirror::updateMatrices(const glm::vec3 &cameraPos, const glm::mat4 &viewMat
     glm::vec3 halfUp = 0.5f * mirrorHeight * mirrorRotation[1];   // up vector
     // 4 corners in world space (clockwise)
     glm::vec3 p0 = position - halfRight - halfUp;
-    glm::vec3 p1 = position + halfRight - halfUp;
+    // glm::vec3 p1 = position + halfRight - halfUp;
     glm::vec3 p2 = position + halfRight + halfUp;
-    glm::vec3 p3 = position - halfRight + halfUp;
+    // glm::vec3 p3 = position - halfRight + halfUp;
 
     glm::vec4 p0_view = mirrorView * glm::vec4(p0, 1.0f);
-    glm::vec4 p1_view = mirrorView * glm::vec4(p1, 1.0f);
+    // glm::vec4 p1_view = mirrorView * glm::vec4(p1, 1.0f);
     glm::vec4 p2_view = mirrorView * glm::vec4(p2, 1.0f);
-    glm::vec4 p3_view = mirrorView * glm::vec4(p3, 1.0f);
+    // glm::vec4 p3_view = mirrorView * glm::vec4(p3, 1.0f);
+
+    // float p0_distance = -p0_view.z;
+    // float p2_distance = -p2_view.z;
 
     float nearPlane = distanceToMirror;
     float farPlane = 1000.0f;
@@ -77,14 +72,10 @@ void Mirror::updateMatrices(const glm::vec3 &cameraPos, const glm::mat4 &viewMat
     float right = p2_view.x;
     float top = p2_view.y;
 
-    std::cout << "near=" << nearPlane << ". left=" << left << ", right=" << right << ", bottom=" << bottom
-              << ", top=" << top << std::endl;
+    // std::cout << "near=" << nearPlane << ". left=" << left << ", right=" << right << ", bottom=" << bottom
+    //           << ", top=" << top << std::endl;
 
     mirrorProjection = glm::frustum(left, right, bottom, top, nearPlane, farPlane);
-    // mirrorProjection = glm::perspective(fov, mirrorAspect, 0.1f, 1000.0f);
-    // float fov = 2.0f * atan(mirrorHeight * 0.5f / distanceToMirror);
-    glm::mat4 horizontalFlip = glm::scale(glm::mat4(1.0f), glm::vec3(-1.0f, 1.0f, 1.0f));
-    // mirrorProjection = horizontalFlip * glm::perspective(fov, mirrorAspect, distanceToMirror, 1000.0f);
 }
 
 void Mirror::beginMirrorRender(int screenWidth, int screenHeight) {
@@ -129,11 +120,13 @@ bool Mirror::shouldRender(const glm::vec3 &cameraPos) const {
     return dot < 0.0f; // Mirror normal points towards viewer
 }
 
-void Mirror::draw() {
+void Mirror::draw(const glm::mat4 &viewMatrix, const glm::mat4 &mainProjection) {
     if (!active)
         return;
 
     shader.use();
+    shader.setMat4("view", viewMatrix);
+    shader.setMat4("projection", mainProjection);
 
     // Set model matrix to position and scale the quad
     glm::mat4 model = glm::mat4(1.0f);
