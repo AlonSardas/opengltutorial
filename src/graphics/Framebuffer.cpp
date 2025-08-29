@@ -5,6 +5,11 @@ std::string framebufferStatusToString(GLenum status);
 
 Framebuffer::Framebuffer() : width(0), height(0), fbo(0), textureId(0), rbo(0) { glGenFramebuffers(1, &fbo); }
 
+Framebuffer::Framebuffer(Framebuffer &&other) noexcept
+    : width(other.width), height(other.height), fbo(other.fbo), textureId(other.textureId), rbo(other.rbo) {
+    other.fbo = 0;
+}
+
 void Framebuffer::resize(int newWidth, int newHeight) {
     if (newWidth == width && newHeight == height)
         return;

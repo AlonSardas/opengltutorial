@@ -14,6 +14,10 @@ class Window {
 
     Window(int w, int h, const char *title);
     ~Window();
+    Window(const Window &) = delete;
+    Window &operator=(const Window &) = delete;
+    Window(Window &&) = delete;
+    Window &operator=(Window &&) = delete;
 
     void pollEvents();
     void swapBuffers();

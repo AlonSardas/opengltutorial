@@ -9,6 +9,7 @@
 #include "models/Mirror.h"
 #include "models/Model.h"
 #include "models/ScreenQuad.h"
+#include "models/SkyBox.h"
 #include "renderers/IRenderer.h"
 #include <optional>
 
@@ -32,8 +33,9 @@ class MirrorsRenderer : public IRenderer {
     PerspectiveProjection &projection;
     Shader shader, screenShader;
     std::optional<Mirror> mirror1, mirror2;
-    std::optional<LayeredMirror> layeredMirror1, layeredMirror2;
+    std::optional<LayeredMirror> layeredMirror1, layeredMirror2, layeredMirror3;
     std::optional<Model> scene;
+    std::optional<SkyBox> skyBox;
     float scaleFactor = 0.05f;
     std::optional<Framebuffer> framebuffer;
     float rearViewWidth = 0.3f, rearViewHeight = 0.41f;

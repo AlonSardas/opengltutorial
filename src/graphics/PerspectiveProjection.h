@@ -7,6 +7,10 @@ class PerspectiveProjection {
   public:
     PerspectiveProjection(float fovDegrees = 45.0f, float aspect = 4.0f / 3.0f, float nearPlane = 0.1f,
                           float farPlane = 100.0f);
+    PerspectiveProjection(const PerspectiveProjection &) = delete;
+    PerspectiveProjection &operator=(const PerspectiveProjection &) = delete;
+    PerspectiveProjection(PerspectiveProjection &&) = delete;
+    PerspectiveProjection &operator=(PerspectiveProjection &&) = delete;
 
     void setFov(float degrees);
     void adjustFov(float deltaDegrees);

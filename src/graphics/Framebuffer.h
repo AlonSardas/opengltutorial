@@ -6,6 +6,10 @@ class Framebuffer {
   public:
     Framebuffer();
     ~Framebuffer();
+    Framebuffer(const Framebuffer &) = delete;
+    Framebuffer &operator=(const Framebuffer &) = delete;
+    Framebuffer(Framebuffer &&) noexcept;
+    Framebuffer &operator=(Framebuffer &&) = delete;
 
     void bind(int curX, int curY, int curWidth, int curHeight);
     void unbind();

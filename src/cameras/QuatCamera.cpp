@@ -36,7 +36,7 @@ void QuatCamera::moveUp(float amount) {
 glm::vec3 QuatCamera::getFront() const { return orientation * glm::vec3(0, 0, 1); }
 
 void QuatCamera::updateViewMatrix() {
-    std::cout << "Camera Position " << position.x << ", " << position.y << ", " << position.z << std::endl;
+    // std::cout << "Camera Position " << position.x << ", " << position.y << ", " << position.z << std::endl;
 
     // Rotation matrix from orientation quaternion
     glm::mat4 rot = glm::mat4_cast(glm::conjugate(orientation));

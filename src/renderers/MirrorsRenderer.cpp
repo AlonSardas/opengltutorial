@@ -29,11 +29,14 @@ void MirrorsRenderer::init() {
     screenQuad.emplace(-rearViewWidth, 1 - rearViewHeight * 2, rearViewWidth * 2, rearViewHeight * 2);
     mirror1.emplace(glm::vec3(20.0f, 4.0f, -30.0f), glm::vec3(1.0f, 0.0f, -0.0f), 4, 6, 900, 900);
     mirror2.emplace(glm::vec3(10.0f, 4.5f, -30.0f), glm::vec3(-1.0f, 0.0f, -0.1f), 4, 6, 900, 900);
-    layeredMirror1.emplace(glm::vec3(15.0f, 4.5f, -33.0f), glm::vec3(-0.0f, 0.0f, -1.0f), 4, 6, 1000, 1000, 5);
-    layeredMirror2.emplace(glm::vec3(15.0f, 4.9f, -26.0f), glm::vec3(-0.0f, 0.1f, 1.0f), 4, 6, 1000, 1000, 5);
+    layeredMirror1.emplace(glm::vec3(15.0f, 4.5f, -33.0f), glm::vec3(-0.0f, 0.0f, -1.0f), 7, 6, 1000, 1000, 15);
+    layeredMirror2.emplace(glm::vec3(19.0f, 4.9f, -27.0f), glm::vec3(-0.0f, 0.01f, 1.0f), 4, 6, 1000, 1000, 15);
+    layeredMirror3.emplace(glm::vec3(11.0f, 4.9f, -26.0f), glm::vec3(-0.0f, 0.01f, 1.0f), 3, 6, 1000, 1000, 15);
 
     camera.moveForward(25);
     camera.moveRight(10);
+
+    skyBox.emplace("resources/skybox");
 
     // stbi_set_flip_vertically_on_load(true);
     scene.emplace("../models/Apocalyptic City/Apocalyptic City.obj");
@@ -90,17 +93,19 @@ void MirrorsRenderer::render() {
         glClearColor(background.x, background.y, background.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderScene(camera.getViewMatrix(), projection.getMatrix());
-        for (Mirror *mirror : mirrors) {
-            mirror->draw(camera.getViewMatrix(), projection.getMatrix());
-        }
+        // for (Mirror *mirror : mirrors) {
+        //     mirror->draw(camera.getViewMatrix(), projection.getMatrix());
+        // }
     }
 
     std::vector<LayeredMirror *> layeredMirrors;
     layeredMirrors.push_back(&layeredMirror1.value());
     layeredMirrors.push_back(&layeredMirror2.value());
+    layeredMirrors.push_back(&layeredMirror3.value());
 
-    renderLayeredMirror(layeredMirrors, layeredMirrors[0], width, height, 0, 5, camera.getPosition());
-    renderLayeredMirror(layeredMirrors, layeredMirrors[1], width, height, 0, 5, camera.getPosition());
+    renderLayeredMirror(layeredMirrors, layeredMirrors[0], width, height, 0, 4, camera.getPosition());
+    renderLayeredMirror(layeredMirrors, layeredMirrors[1], width, height, 0, 4, camera.getPosition());
+    renderLayeredMirror(layeredMirrors, layeredMirrors[2], width, height, 0, 4, camera.getPosition());
     // for (Mirror *mirror : mirrors) {
     // renderMirrorRecursive(mirrors, mirror, width, height, 1, camera.getPosition());
     // }
@@ -108,6 +113,8 @@ void MirrorsRenderer::render() {
     for (auto mirror : layeredMirrors) {
         mirror->draw(camera.getViewMatrix(), projection.getMatrix());
     }
+
+    skyBox->draw(camera.getViewMatrix(), projection.getMatrix());
 }
 
 void MirrorsRenderer::renderScene(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix) {

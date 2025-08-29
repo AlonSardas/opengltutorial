@@ -17,9 +17,10 @@ void LayeredMirror::init(int textureWidth, int textureHeight) {
     mirrorRotation = glm::mat3(right, up, forward);
 
     // Initialize all framebuffers
-    framebuffers.resize(maxLevels);
+    framebuffers.reserve(maxLevels);
     for (int i = 0; i < maxLevels; ++i) {
-        framebuffers[i].resize(textureWidth, textureHeight);
+        auto &framebuffer = framebuffers.emplace_back();
+        framebuffer.resize(textureWidth, textureHeight);
     }
 
     std::cout << "LayeredMirror initialized with " << maxLevels << " levels at (" << position.x << ", " << position.y
@@ -142,9 +143,10 @@ void LayeredMirror::copyLevel(int fromLevel, int toLevel) {
 }
 
 void LayeredMirror::swapLevels(int level1, int level2) {
-    validateLevel("swapLevels-level1", level1);
-    validateLevel("swapLevels-level2", level2);
-    std::swap(framebuffers[level1], framebuffers[level2]);
+    throw std::runtime_error("swap not implemented!");
+    // validateLevel("swapLevels-level1", level1);
+    // validateLevel("swapLevels-level2", level2);
+    // std::swap(framebuffers[level1], framebuffers[level2]);
 }
 
 void LayeredMirror::clearLevel(int level) {
