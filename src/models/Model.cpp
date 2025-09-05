@@ -179,8 +179,6 @@ unsigned int loadTextureFromFile(const char *path, const string &directory, bool
 
         stbi_image_free(data);
     } else {
-        // TODO: Delete textures!
-        stbi_image_free(data);
         throw std::runtime_error("Failed to load texture at path: " + std::string(path));
     }
 

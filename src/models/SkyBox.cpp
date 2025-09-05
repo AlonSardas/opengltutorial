@@ -11,6 +11,7 @@ SkyBox::SkyBox(const std::string &basePath) : shader("shaders/skybox.vs", "shade
 
 void SkyBox::draw(const glm::mat4 &viewMatrix, const glm::mat4 &projection) {
     glDepthFunc(GL_LEQUAL);
+    // glDepthFunc(GL_ALWAYS);
     shader.use();
     glm::mat4 view = glm::mat4(glm::mat3(viewMatrix)); // remove translation from the view matrix
     shader.setMat4("view", view);
