@@ -19,3 +19,11 @@ void printVec4(const std::string &name, const glm::vec4 &v) {
     }
     std::cout << std::endl;
 }
+
+void printVec3(const std::string &name, const glm::vec3 &v) {
+    std::cout << name << ": ";
+    for (int i = 0; i < 3; ++i) {
+        std::cout << std::setw(10) << v[i] << " ";
+    }
+    std::cout << std::endl;
+}

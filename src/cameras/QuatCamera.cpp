@@ -2,7 +2,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-QuatCamera::QuatCamera(glm::vec3 startPos) : position(startPos), orientation(glm::quat(1, 0, 0, 0)) {
+QuatCamera::QuatCamera(glm::vec3 startPos, float moveSpeed, float turnSpeed)
+    : BaseControllable(moveSpeed, turnSpeed), position(startPos), orientation(glm::quat(1, 0, 0, 0)) {
     updateViewMatrix();
 }
 
@@ -11,29 +12,24 @@ void QuatCamera::rotate(float yawDegrees, float pitchDegrees, float rollDegrees)
     glm::quat qPitch = glm::angleAxis(glm::radians(pitchDegrees), orientation * glm::vec3(1, 0, 0));
     glm::quat qRoll = glm::angleAxis(glm::radians(rollDegrees), orientation * glm::vec3(0, 0, 1));
     orientation = normalize(qYaw * qPitch * qRoll * orientation);
+    front = orientation * glm::vec3(0, 0, -1);
 
     updateViewMatrix();
 }
 
-void QuatCamera::moveForward(float amount) {
-    glm::vec3 forward = orientation * glm::vec3(0, 0, -1);
-    position += forward * amount;
-    updateViewMatrix();
-}
-
-void QuatCamera::moveRight(float amount) {
+void QuatCamera::move(const glm::vec3 &delta) {
     glm::vec3 right = orientation * glm::vec3(1, 0, 0);
-    position += right * amount;
-    updateViewMatrix();
-}
+    position += right * delta.x;
 
-void QuatCamera::moveUp(float amount) {
     glm::vec3 up = orientation * glm::vec3(0, 1, 0);
-    position += up * amount;
+    position += up * delta.y;
+
+    glm::vec3 forward = orientation * glm::vec3(0, 0, -1);
+    position += forward * delta.z;
     updateViewMatrix();
 }
 
-glm::vec3 QuatCamera::getFront() const { return orientation * glm::vec3(0, 0, 1); }
+const glm::vec3 &QuatCamera::getFront() const { return front; }
 
 void QuatCamera::updateViewMatrix() {
     // std::cout << "Camera Position " << position.x << ", " << position.y << ", " << position.z << std::endl;

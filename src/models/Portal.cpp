@@ -5,13 +5,13 @@
 #include <glm/gtc/quaternion.hpp>
 
 Portal::Portal(const std::string &name, const glm::vec3 &pos, const glm::vec3 &n, float angle, float w, float h)
-    : name(name), destination(0), position(pos), normal(glm::normalize(n)), angle(angle),
+    : name(name), destination(0), position(pos), normal(glm::normalize(n)), width(w), height(h), angle(angle),
       blankShader("shaders/mirrorTransformer.vs", "shaders/innerOnly.fs"),
       frameShader("shaders/mirrorTransformer.vs", "shaders/frameOnly.fs") {
 
     glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 right = glm::normalize(glm::cross(upVector, normal));
-    glm::vec3 up = glm::cross(normal, right);
+    right = glm::normalize(glm::cross(upVector, normal));
+    up = glm::cross(normal, right);
     glm::mat3 rotation = glm::mat3(right, up, normal);
 
     modelMat = glm::mat4(1.0f);
@@ -46,14 +46,30 @@ std::optional<glm::mat4> Portal::getViewMat(const glm::mat4 &viewMat) const {
     glm::vec3 camForward = glm::normalize(glm::vec3(viewMat[2]));
     float facing = glm::dot(camForward, normal);
     if (facing > 0.5f) {
-        std::cout << "Camera not facing " << name << std::endl;
-        return std::nullopt;
+        // This makes problem
+        // std::cout << "Camera not facing " << name << std::endl;
+        // return std::nullopt;
     }
 
     glm::mat4 destinationView = viewMat * this->modelMat *
                                 glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.0f, 1.0f, 0.0f)) *
                                 glm::inverse(this->destination->modelMat);
     return destinationView;
+}
+
+glm::vec3 Portal::teleportPosition(const glm::vec3 &pos) const {
+    glm::vec4 posw(pos, 1.0f);
+    glm::mat4 transMatrix = this->destination->modelMat *
+                            glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+                            glm::inverse(modelMat);
+    return transMatrix * posw;
+}
+
+glm::vec4 Portal::teleportVec(const glm::vec4 &vec) const {
+    glm::mat4 transMatrix = this->destination->modelMat *
+                            glm::rotate(glm::mat4(1.0f), glm::radians(180.f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+                            glm::inverse(modelMat);
+    return transMatrix * vec;
 }
 
 std::optional<glm::mat4> Portal::getProjMat(const glm::mat4 &destView, const glm::mat4 &projMat) const {
@@ -74,7 +90,7 @@ std::optional<glm::mat4> Portal::getProjMat(const glm::mat4 &destView, const glm
 
     // If plane faces away from camera, don't clip
     if (clipPlane.w > 0.0f) {
-        std::cout << "Clip plane away from camera for " << name << std::endl;
+        // std::cout << "Clip plane away from camera for " << name << std::endl;
         // return projMat;
         // return glm::mat4(0.0f);
         return std::nullopt;
@@ -103,53 +119,15 @@ std::optional<glm::mat4> Portal::getProjMat(const glm::mat4 &destView, const glm
     return newProjMat;
 }
 
-/*glm::mat4 const Portal::getProjMat(const glm::mat4 &viewMat, const glm::mat4 &projMat) const {
-    // Create clip plane in world space (ax + by + cz + d = 0 form)
-    glm::vec4 clipPlane(normal, -glm::dot(normal, position));
-    // Transform to camera space
-    clipPlane = glm::transpose(glm::inverse(viewMat)) * clipPlane;
+bool Portal::isInside(const glm::vec3 &playerPos) const {
+    glm::vec3 toPlayer = playerPos - position;
 
-    // If plane faces away from camera, don't clip
-    if (clipPlane.w > 0.0f) {
-        // return glm::mat4(5.0f);
-        return projMat;
+    // Project onto portal's local axes
+    float x = glm::dot(toPlayer, right);
+    float y = glm::dot(toPlayer, up);
+
+    if (std::abs(x) <= width * 0.5f && std::abs(y) <= height * 0.5f) {
+        return true;
     }
-    return projMat;
-    // std::cout << "clip.w>0. " << std::endl;
-
-    // Calculate the corner point
-    glm::vec4 q = glm::inverse(projMat) * glm::vec4(glm::sign(clipPlane.x), glm::sign(clipPlane.y), 1.0f, 1.0f);
-
-    // Scale the plane
-    glm::vec4 c = clipPlane * (2.0f / glm::dot(clipPlane, q));
-
-    glm::mat4 newProjMat = projMat;
-    newProjMat[2] = c - newProjMat[3];
-
-    return newProjMat;
-
-    */
-
-/*
-glm::mat4 const Portal::getProjMat(const glm::mat4 &viewMat, const glm::mat4 &projMat) const {
-float d = glm::length(position);
-glm::vec3 newCLipPlaneNormal = normal * glm::vec3(0.0f, 0.0f, -1.0f);
-// Calculate the clip plane with a normal and distance to the origin
-glm::vec4 newClipPlane(newCLipPlaneNormal, d);
-newClipPlane = glm::inverse(glm::transpose(viewMat)) * newClipPlane;
-// If the new clip plane's fourth component (w) is greater than 0, indicating that it is facing away from the
-// camera,
-if (newClipPlane.w > 0.0f)
-    return projMat;
-glm::vec4 q = glm::inverse(projMat) * glm::vec4(glm::sign(newClipPlane.x), glm::sign(newClipPlane.y), 1.0f, 1.0f);
-// glm::vec4 c = newClipPlane * (2.0f / (glm::dot(newClipPlane, q)));
-std::cout << "factor=" << glm::dot(glm::row(projMat, 3), q) << std::endl;
-glm::vec4 c = newClipPlane * (2.0f * glm::dot(glm::row(projMat, 3), q) / (glm::dot(newClipPlane, q)));
-glm::mat4 newProjMat = projMat;
-// third row = new clip plane - fourth row of projection matrix
-
-// TODO: ------------ Fix??
-// newProjMat = glm::row(newProjMat, 2, c - glm::row(newProjMat, 3));
-return newProjMat;
+    return false;
 }
-*/

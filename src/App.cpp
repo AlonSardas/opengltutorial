@@ -19,13 +19,16 @@ void saveScreenshot(const std::string &filename);
 
 App::App()
     : window(INITIAL_WIDTH, INITIAL_HEIGHT, "My openGL app"), camera(),
-      projection(45.0f, float(INITIAL_WIDTH) / INITIAL_HEIGHT) {
-    // renderer = std::make_unique<Renderer>(camera, projection);
-    // renderer = std::make_unique<LightingRenderer>(camera, projection);
-    // renderer = std::make_unique<ModelLoadingExample>(camera, projection);
-    // renderer = std::make_unique<StencilGlowExample>(camera, projection);
-    // renderer = std::make_unique<MirrorsRenderer>(camera, projection);
-    renderer = std::make_unique<PortalScene>(camera, projection);
+      projection(45.0f, float(INITIAL_WIDTH) / INITIAL_HEIGHT)
+      // renderer = std::make_unique<Renderer>(camera, projection);
+      // renderer = std::make_unique<LightingRenderer>(camera, projection);
+      // renderer = std::make_unique<ModelLoadingExample>(camera, projection);
+      // renderer = std::make_unique<StencilGlowExample>(camera, projection);
+      // renderer = std::make_unique<MirrorsRenderer>(camera, projection);
+      ,
+      player(), povPlayer(glm::vec3(0.0, 2.5f, 0.0f)) {
+    currentAgent = &camera;
+    renderer = std::make_unique<PortalScene>(&currentAgent, projection, &player, &povPlayer);
     renderer->init();
     renderer->onResize(INITIAL_WIDTH, INITIAL_HEIGHT);
     window.setAppForCallback(this);
@@ -54,36 +57,33 @@ void App::onResize(int width, int height) {
 }
 
 void App::processInput(float deltaTime) {
-    const float moveSpeed = 4.5f * deltaTime;  // units per second
-    const float turnSpeed = 45.0f * deltaTime; // degrees per second
-
     // --- Movement (WASD + RF) ---
     if (window.getKeyStatus(GLFW_KEY_W) == GLFW_PRESS)
-        camera.moveForward(moveSpeed);
+        currentAgent->moveForward(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_S) == GLFW_PRESS)
-        camera.moveForward(-moveSpeed);
+        currentAgent->moveBackward(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_A) == GLFW_PRESS)
-        camera.moveRight(-moveSpeed);
+        currentAgent->moveLeft(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_D) == GLFW_PRESS)
-        camera.moveRight(moveSpeed);
+        currentAgent->moveRight(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_F) == GLFW_PRESS)
-        camera.moveUp(-moveSpeed);
+        currentAgent->moveDown(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_R) == GLFW_PRESS)
-        camera.moveUp(moveSpeed);
+        currentAgent->moveUp(deltaTime);
 
     // --- Rotation (Arrow keys) ---
     if (window.getKeyStatus(GLFW_KEY_RIGHT) == GLFW_PRESS)
-        camera.rotateRight(turnSpeed);
+        currentAgent->rotateRight(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_LEFT) == GLFW_PRESS)
-        camera.rotateLeft(turnSpeed);
+        currentAgent->rotateLeft(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_UP) == GLFW_PRESS)
-        camera.rotateUp(turnSpeed);
+        currentAgent->rotateUp(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_DOWN) == GLFW_PRESS)
-        camera.rotateDown(turnSpeed);
+        currentAgent->rotateDown(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_Q) == GLFW_PRESS)
-        camera.rollLeft(turnSpeed);
+        currentAgent->rollLeft(deltaTime);
     if (window.getKeyStatus(GLFW_KEY_E) == GLFW_PRESS)
-        camera.rollRight(turnSpeed);
+        currentAgent->rollRight(deltaTime);
 }
 
 void App::onMouseMove(double xposIn, double yposIn) {
@@ -92,7 +92,7 @@ void App::onMouseMove(double xposIn, double yposIn) {
     }
     auto [dx, dy] = mouse.onMouseMove(xposIn, yposIn);
     // std::cout << "Mouse moved" << xposIn << ", " << yposIn << " dx=" << dx << " dy=" << dy << std::endl;
-    camera.rotate(dx, dy);
+    currentAgent->rotate(dx, dy, 0);
 }
 
 void App::onMouseScroll(double xoffset, double yoffset) {
@@ -113,24 +113,34 @@ void App::onMouseButton(int button, int action, int mods) {
 }
 
 void App::onKeyChanged(int key, int scancode, int action, int mods) {
-    if (action == GLFW_PRESS) {
-        switch (key) {
-        case GLFW_KEY_ESCAPE:
-            if (!cursorEnabled) {
-                cursorEnabled = true;
-                glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                mouse.resetPosition();
-            }
-            break;
-        case GLFW_KEY_F11:
-            // mouse.resetPosition();
-            window.toggleFullscreen();
-            // mouse.resetPosition();
-            break;
-        case GLFW_KEY_P:
-            saveScreenshot("../screenshot.png");
-            break;
+    if (action != GLFW_PRESS) {
+        return;
+    }
+    switch (key) {
+    case GLFW_KEY_ESCAPE:
+        if (!cursorEnabled) {
+            cursorEnabled = true;
+            glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            mouse.resetPosition();
         }
+        break;
+    case GLFW_KEY_F11:
+        // mouse.resetPosition();
+        window.toggleFullscreen();
+        // mouse.resetPosition();
+        break;
+    case GLFW_KEY_P:
+        saveScreenshot("../screenshot.png");
+        break;
+    case GLFW_KEY_1:
+        currentAgent = &camera;
+        break;
+    case GLFW_KEY_2:
+        currentAgent = &player;
+        break;
+    case GLFW_KEY_3:
+        currentAgent = &povPlayer;
+        break;
     }
 }
 

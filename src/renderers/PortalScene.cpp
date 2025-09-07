@@ -5,22 +5,32 @@ https://www.youtube.com/watch?v=cWpFZbjtSQg
 
 #include "PortalScene.h"
 #include "stb/stb_image.h"
+#include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 // TODO: Add teleportation
 
 void printStencilBuffer(int width, int height);
 
-PortalScene::PortalScene(const QuatCamera &c, PerspectiveProjection &proj)
-    : camera(c), projection(proj), shader("shaders/vertexTransformer2.vs", "shaders/fragmentAdapterWithTexture.fs"),
-      floorShader("shaders/vertexTransformer.vs", "shaders/fragmentAdapterWithTexture.fs") {}
+PortalScene::PortalScene(IControllable *const *agent, PerspectiveProjection &proj, Player *player, POVPlayer *povPlayer)
+    : currentAgent(agent), projection(proj),
+      shader("shaders/vertexTransformer2.vs", "shaders/fragmentAdapterWithTexture.fs"),
+      floorShader("shaders/vertexTransformer.vs", "shaders/fragmentAdapterWithTexture.fs") {
+    playerModel.emplace(player);
+    portal1.emplace("portal1", glm::vec3(2.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), 0, 6.0f, 4.0f);
+    // portal2.emplace("portal2", glm::vec3(-5.0f, 2.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0, 6.0f, 4.0f);
+    // portal2.emplace("portal2", glm::vec3(-5.0f, 1.0f, -0.0f), glm::vec3(1.0f, 0.0f, 0.1f), 0, 6.0f, 4.0f);
+    portal2.emplace("portal2", glm::vec3(-2.0f, 1.0f, -3.0f), glm::vec3(0.0f, 0.0f, 1.1f), 0, 6.0f, 4.0f);
+
+    player->addPortal(&portal1.value());
+    player->addPortal(&portal2.value());
+    povPlayer->addPortal(&portal1.value());
+    povPlayer->addPortal(&portal2.value());
+}
 
 PortalScene::~PortalScene() {}
 
 void PortalScene::init() {
-    portal1.emplace("portal1", glm::vec3(2.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), 0, 6.0f, 4.0f);
-    // portal2.emplace("portal2", glm::vec3(-5.0f, 2.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0, 6.0f, 4.0f);
-    portal2.emplace("portal2", glm::vec3(-5.0f, 1.0f, -0.0f), glm::vec3(1.0f, 0.0f, 0.1f), 0, 6.0f, 4.0f);
 
     portal1->setDestination(&portal2.value());
     portal2->setDestination(&portal1.value());
@@ -50,39 +60,42 @@ void PortalScene::init() {
 }
 
 void PortalScene::render() {
+    auto camera = *currentAgent;
+    const glm::mat4 &viewMatrix = camera->getViewMatrix();
+
     glStencilMask(0xFF);
     glClearColor(background.x, background.y, background.z, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // glEnable(GL_DEPTH_TEST);
     // drawRestOfScene();
-    // portal1->drawBlank(camera.getViewMatrix(), projection.getMatrix());
-    // portal2->drawBlank(camera.getViewMatrix(), projection.getMatrix());
+    // portal1->drawBlank(viewMatrix, projection.getMatrix());
+    // portal2->drawBlank(viewMatrix, projection.getMatrix());
     // return;
 
     // nonRecursiveDraw();
 
-    std::cout << "Render start" << std::endl;
-    recursiveDraw(&portal2.value(), camera.getViewMatrix(), projection.getMatrix(), 6, 0);
-    recursiveDraw(&portal1.value(), camera.getViewMatrix(), projection.getMatrix(), 3, 0);
+    // std::cout << "Render start" << std::endl;
+    recursiveDraw(&portal2.value(), viewMatrix, projection.getMatrix(), 6, 0);
+    recursiveDraw(&portal1.value(), viewMatrix, projection.getMatrix(), 3, 0);
 
-    // portal1->drawBlank(camera.getViewMatrix(), projection.getMatrix());
+    // portal1->drawBlank(viewMatrix, projection.getMatrix());
 
     // Draw the portal just to depth buffer so it hides the things behind it
     // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     // glDisable(GL_STENCIL_TEST);
     // glEnable(GL_DEPTH_TEST);
     // glClear(GL_DEPTH_BUFFER_BIT);
-    // portal1->drawBlank(camera.getViewMatrix(), projection.getMatrix());
-    // portal1->draw(camera.getViewMatrix(), projection.getMatrix());
+    // portal1->drawBlank(viewMatrix, projection.getMatrix());
+    // portal1->draw(viewMatrix, projection.getMatrix());
 
     // Draw rest of the scene
     glDisable(GL_STENCIL_TEST);
     // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     drawRestOfScene();
     // glDepthFunc(GL_LEQUAL);
-    // portal1->draw(camera.getViewMatrix(), projection.getMatrix());
-    // portal2->draw(camera.getViewMatrix(), projection.getMatrix());
+    // portal1->draw(viewMatrix, projection.getMatrix());
+    // portal2->draw(viewMatrix, projection.getMatrix());
 }
 
 void PortalScene::onResize(int width, int height) { glViewport(0, 0, width, height); }
@@ -97,9 +110,9 @@ void PortalScene::recursiveDraw(Portal *portal, const glm::mat4 &viewMat, const 
         nextProjMatrix = portal->getDestination()->getProjMat(nextViewMatrix.value(), projMat);
     }
 
-    if (recursionLevel == maxRecursionLevel) {
-        std::cout << "reached max depth for " << portal->getName() << std::endl;
-    }
+    // if (recursionLevel == maxRecursionLevel) {
+    //     std::cout << "reached max depth for " << portal->getName() << std::endl;
+    // }
     if (recursionLevel == maxRecursionLevel || !nextViewMatrix || !nextProjMatrix) {
         // Re-enable color and depth writing
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -147,6 +160,9 @@ void PortalScene::recursiveDraw(Portal *portal, const glm::mat4 &viewMat, const 
 }
 
 void PortalScene::nonRecursiveDraw() {
+    auto camera = *currentAgent;
+    const glm::mat4 &viewMatrix = camera->getViewMatrix();
+
     // First put 1s where portals should be. Note that we keep depth test to account for portals being hidden (behind
     // other objects)
     glEnable(GL_STENCIL_TEST);
@@ -161,8 +177,8 @@ void PortalScene::nonRecursiveDraw() {
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_FALSE);
 
-    portal1->drawBlank(camera.getViewMatrix(), projection.getMatrix());
-    // portal2->drawBlank(camera.getViewMatrix(), projection.getMatrix());
+    portal1->drawBlank(viewMatrix, projection.getMatrix());
+    // portal2->drawBlank(viewMatrix, projection.getMatrix());
 
     // printStencilBuffer(80, 800);
 
@@ -173,8 +189,8 @@ void PortalScene::nonRecursiveDraw() {
 
     // // Only draw where stencil >= 1
     glStencilFunc(GL_LEQUAL, 1, 0xFF);
-    drawRestOfScene(portal1->getViewMat(camera.getViewMatrix()).value(),
-                    portal1->getProjMat(camera.getViewMatrix(), projection.getMatrix()).value());
+    drawRestOfScene(portal1->getViewMat(viewMatrix).value(),
+                    portal1->getProjMat(viewMatrix, projection.getMatrix()).value());
 
     // Now portal 2
     glClear(GL_STENCIL_BUFFER_BIT);
@@ -189,7 +205,7 @@ void PortalScene::nonRecursiveDraw() {
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDepthMask(GL_FALSE);
 
-    portal2->drawBlank(camera.getViewMatrix(), projection.getMatrix());
+    portal2->drawBlank(viewMatrix, projection.getMatrix());
     glStencilMask(0x00);
     // Re-enable color and depth writing
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -197,16 +213,16 @@ void PortalScene::nonRecursiveDraw() {
     // Only draw where stencil >= 1
     glStencilFunc(GL_LEQUAL, 1, 0xFF);
     // TODO: This will result in null ptr errors
-    drawRestOfScene(portal2->getViewMat(camera.getViewMatrix()).value(),
-                    portal2->getProjMat(camera.getViewMatrix(), projection.getMatrix()).value());
+    drawRestOfScene(portal2->getViewMat(viewMatrix).value(),
+                    portal2->getProjMat(viewMatrix, projection.getMatrix()).value());
 
     // Here we only update depth buffer with the portal position
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDisable(GL_STENCIL_TEST);
     glEnable(GL_DEPTH_TEST);
     glClear(GL_DEPTH_BUFFER_BIT);
-    portal1->drawBlank(camera.getViewMatrix(), projection.getMatrix());
-    portal2->drawBlank(camera.getViewMatrix(), projection.getMatrix());
+    portal1->drawBlank(viewMatrix, projection.getMatrix());
+    portal2->drawBlank(viewMatrix, projection.getMatrix());
 }
 
 void PortalScene::drawRestOfScene(const glm::mat4 &viewMat, const glm::mat4 &projMat) {
@@ -214,8 +230,11 @@ void PortalScene::drawRestOfScene(const glm::mat4 &viewMat, const glm::mat4 &pro
     shader.setMat4("view", viewMat);
     shader.setMat4("projection", projMat);
 
+    float time = glfwGetTime();
     glm::mat4 model = glm::mat4(1.0f);
     float scale = 1.0f;
+    model = glm::rotate(model, -time / 2, glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::scale(model, glm::vec3(scale, scale, scale));
     shader.setMat4("model", model);
     obj1->draw(shader);
@@ -233,6 +252,8 @@ void PortalScene::drawRestOfScene(const glm::mat4 &viewMat, const glm::mat4 &pro
     shader.setMat4("model", model);
     obj3->draw(shader);
 
+    playerModel->draw(shader);
+
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(0.0f, -1.5f, 0.0f));
     model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -242,16 +263,16 @@ void PortalScene::drawRestOfScene(const glm::mat4 &viewMat, const glm::mat4 &pro
     floorShader.setMat4("projection", projMat);
     floorShader.setMat4("model", model);
     floorTexture->bind(0);
-    shader.setInt("texture_diffuse1", 0);
+    floorShader.setInt("texture_diffuse1", 0);
     floor->draw(floorShader);
 
     skyBox->draw(viewMat, projMat);
 }
 
 void PortalScene::drawRestOfScene() {
-    drawRestOfScene(camera.getViewMatrix(), projection.getMatrix());
-    // portal1->draw(camera.getViewMatrix(), projection.getMatrix());
-    // portal2->draw(camera.getViewMatrix(), projection.getMatrix());
+    drawRestOfScene((*currentAgent)->getViewMatrix(), projection.getMatrix());
+    // portal1->draw(viewMatrix, projection.getMatrix());
+    // portal2->draw(viewMatrix, projection.getMatrix());
 }
 
 void printStencilBuffer(int width, int height) {

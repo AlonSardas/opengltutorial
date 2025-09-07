@@ -1,6 +1,8 @@
 #pragma once
 
-#include "cameras/QuatCamera.h"
+#include "IControllable.h"
+#include "Player.h"
+#include "PlayerModel.h"
 #include "graphics/PerspectiveProjection.h"
 #include "models/Model.h"
 #include "models/Portal.h"
@@ -11,16 +13,17 @@
 
 class PortalScene : public IRenderer {
   public:
-    PortalScene(const QuatCamera &c, PerspectiveProjection &proj);
+    PortalScene(IControllable *const *currentAgent, PerspectiveProjection &proj, Player *player, POVPlayer*povPlayer);
     ~PortalScene() override;
     void init() override;
     void render() override;
     void onResize(int width, int height) override;
 
   private:
-    const QuatCamera &camera;
+    IControllable *const *currentAgent;
     const PerspectiveProjection &projection;
 
+    std::optional<PlayerModel> playerModel;
     std::optional<Model> obj1;
     std::optional<Cube> obj2, obj3;
     std::optional<SkyBox> skyBox;

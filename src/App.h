@@ -1,6 +1,8 @@
 #pragma once
 
+#include "IControllable.h"
 #include "Mouse.h"
+#include "Player.h"
 #include "cameras/QuatCamera.h"
 #include "graphics/PerspectiveProjection.h"
 #include "graphics/Window.h"
@@ -23,11 +25,15 @@ class App {
 
     Window window;
     QuatCamera camera;
+    IControllable *currentAgent;
     PerspectiveProjection projection;
     Mouse mouse;
     std::unique_ptr<IRenderer> renderer;
     bool cursorEnabled = false;
     bool isFullscreen = false;
+
+    Player player;
+    POVPlayer povPlayer;
 
     static constexpr int INITIAL_WIDTH = 1024;
     static constexpr int INITIAL_HEIGHT = 768;
