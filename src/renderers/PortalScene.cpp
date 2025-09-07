@@ -8,7 +8,7 @@ https://www.youtube.com/watch?v=cWpFZbjtSQg
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-// TODO: Add teleportation
+// TODO: Add teleportation of objects
 
 void printStencilBuffer(int width, int height);
 
@@ -76,8 +76,8 @@ void PortalScene::render() {
     // nonRecursiveDraw();
 
     // std::cout << "Render start" << std::endl;
-    recursiveDraw(&portal2.value(), viewMatrix, projection.getMatrix(), 6, 0);
-    recursiveDraw(&portal1.value(), viewMatrix, projection.getMatrix(), 3, 0);
+    recursiveDraw(&portal2.value(), viewMatrix, projection.getMatrix(), 15, 0);
+    recursiveDraw(&portal1.value(), viewMatrix, projection.getMatrix(), 15, 0);
 
     // portal1->drawBlank(viewMatrix, projection.getMatrix());
 

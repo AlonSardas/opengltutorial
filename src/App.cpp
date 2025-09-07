@@ -19,15 +19,15 @@ void saveScreenshot(const std::string &filename);
 
 App::App()
     : window(INITIAL_WIDTH, INITIAL_HEIGHT, "My openGL app"), camera(),
-      projection(45.0f, float(INITIAL_WIDTH) / INITIAL_HEIGHT)
-      // renderer = std::make_unique<Renderer>(camera, projection);
-      // renderer = std::make_unique<LightingRenderer>(camera, projection);
-      // renderer = std::make_unique<ModelLoadingExample>(camera, projection);
-      // renderer = std::make_unique<StencilGlowExample>(camera, projection);
-      // renderer = std::make_unique<MirrorsRenderer>(camera, projection);
-      ,
-      player(), povPlayer(glm::vec3(0.0, 2.5f, 0.0f)) {
+      projection(45.0f, float(INITIAL_WIDTH) / INITIAL_HEIGHT), player(),
+      povPlayer(glm::vec3(0.0, 2.5f, 0.0f), 12.0f, 65.0f) {
     currentAgent = &camera;
+
+    // renderer = std::make_unique<Renderer>(camera, projection);
+    // renderer = std::make_unique<LightingRenderer>(camera, projection);
+    // renderer = std::make_unique<ModelLoadingExample>(camera, projection);
+    // renderer = std::make_unique<StencilGlowExample>(camera, projection);
+    // renderer = std::make_unique<MirrorsRenderer>(camera, projection);
     renderer = std::make_unique<PortalScene>(&currentAgent, projection, &player, &povPlayer);
     renderer->init();
     renderer->onResize(INITIAL_WIDTH, INITIAL_HEIGHT);

@@ -4,8 +4,10 @@ CXXFLAGS = -Wall -Isrc -Iinclude
 DEBUGFLAGS = -g -O0 -fsanitize=address,undefined
 RELEASEFLAGS = -O2
 
-LDFLAGS = -L/home/alon/Documents/Dev/OpenGLTutorial/glfw-3.4/build/src \
-		  -L/home/alon/Documents/Dev/OpenGLTutorial/assimp/bin \
+PROJECT_DIR := $(HOME)/Documents/Dev/OpenGLTutorial
+
+LDFLAGS = -L/$(PROJECT_DIR)/glfw-3.4/build/src \
+		  -L/$(PROJECT_DIR)/assimp/bin \
 		  -lGL -lglfw -lassimp
 
 DEBUG_LDFLAGS = -fsanitize=address,undefined
