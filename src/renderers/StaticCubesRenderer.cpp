@@ -1,21 +1,21 @@
-#include "Renderer.h"
-#include "models/CubeData.h"
+#include "StaticCubesRenderer.h"
+#include "models/primitives/CubeData.h"
 
-Renderer::Renderer(const QuatCamera &c, PerspectiveProjection &proj)
+StaticCubesRenderer::StaticCubesRenderer(const QuatCamera &c, PerspectiveProjection &proj)
     : camera(c), shader("shaders/vertexTransformer.vs", "shaders/textureMergeFragment.fs"), projection(proj) {}
 
-Renderer::~Renderer() {
+StaticCubesRenderer::~StaticCubesRenderer() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     // glDeleteBuffers(1, &EBO);
 }
 
-void Renderer::onResize(int width, int height) {
+void StaticCubesRenderer::onResize(int width, int height) {
     // std::cout << "resized!" << width << "," << height << std::endl;
     glViewport(0, 0, width, height);
 }
 
-void Renderer::init() {
+void StaticCubesRenderer::init() {
     glEnable(GL_DEPTH_TEST);
 
     model = glm::mat4(1.0f);
@@ -72,7 +72,7 @@ void Renderer::init() {
     shader.setInt("texture2", 1);
 }
 
-void Renderer::render() {
+void StaticCubesRenderer::render() {
     glClearColor(1.0f, 0.9f, 0.9f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -93,7 +93,7 @@ void Renderer::render() {
     }
 }
 
-const std::array<glm::vec3, 10> &Renderer::getCubePositions() {
+const std::array<glm::vec3, 10> &StaticCubesRenderer::getCubePositions() {
     static const std::array<glm::vec3, 10> cubePositions = {
         glm::vec3(0.0f, 0.0f, 0.0f),     glm::vec3(2.0f, 5.0f, -15.0f), glm::vec3(-1.5f, -2.2f, -2.5f),
         glm::vec3(-3.8f, -2.0f, -12.3f), glm::vec3(2.4f, -0.4f, -3.5f), glm::vec3(-1.7f, 3.0f, -7.5f),

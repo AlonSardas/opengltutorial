@@ -1,13 +1,7 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
-#include <glad/glad.h> // include glad to get all the required OpenGL headers
-
-#include <fstream>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 class Shader {
@@ -34,10 +28,13 @@ class Shader {
     void setMat4(const std::string &name, const glm::mat4 &mat) const;
     GLint getUniformLocation(const std::string &name) const;
 
+    bool usesTexture() const { return usesTex; }
+    void setUsesTexture(bool uses) { usesTex = uses; }
+
   private:
     void checkCompileErrors(const unsigned int &shader, const std::string &type);
     void checkLinkingErrors();
     std::string readFile(const char *filePath);
-};
 
-#endif
+    bool usesTex = true;
+};

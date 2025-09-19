@@ -5,8 +5,8 @@ https://medium.com/@alikomurcu/portals-with-opengl-d74da6241dd4
 
 #pragma once
 
-#include "Quad.h"
 #include "graphics/Shader.h"
+#include "primitives/QuadNoNormals.h"
 #include <glm/glm.hpp>
 #include <optional>
 
@@ -44,6 +44,6 @@ class Portal {
     float width, height;
     float angle;
     glm::mat4 modelMat;
-    Quad quad;
+    QuadNoNormals quad;
     Shader blankShader, frameShader;
 };

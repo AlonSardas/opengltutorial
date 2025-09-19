@@ -3,6 +3,12 @@ https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
 */
 
 #include "Shader.h"
+#include <cstring>
+#include <fstream>
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath
@@ -107,15 +113,17 @@ void Shader::checkCompileErrors(const unsigned int &shader, const std::string &t
 
 void Shader::checkLinkingErrors() {
     int success;
+    char infoLog[512];
     glGetProgramiv(ID, GL_LINK_STATUS, &success);
+    glGetProgramInfoLog(ID, 512, NULL, infoLog);
 
     if (!success) {
-        char infoLog[512];
-        std::string errorMessage;
-        glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        errorMessage = std::string("ERROR::PROGRAM_LINKING_ERROR\n") + infoLog;
-        std::cout << errorMessage << std::endl;
+        std::string errorMessage = std::string("ERROR::PROGRAM_LINKING_ERROR\n") + infoLog;
         throw std::runtime_error(errorMessage);
+    } else if (strlen(infoLog) > 0) {
+        std::cerr << "WARNING::SHADER::PROGRAM::LINKING_LOG\n"
+                  << infoLog << "\n"
+                  << " -- --------------------------------------------------- -- " << std::endl;
     }
 }
 

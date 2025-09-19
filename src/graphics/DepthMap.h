@@ -1,19 +1,19 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <string>
 
-class Framebuffer {
+class DepthMap {
   public:
-    Framebuffer();
-    ~Framebuffer();
-    Framebuffer(const Framebuffer &) = delete;
-    Framebuffer &operator=(const Framebuffer &) = delete;
-    Framebuffer(Framebuffer &&) noexcept;
-    Framebuffer &operator=(Framebuffer &&) = delete;
+    DepthMap();
+    ~DepthMap();
+    DepthMap(const DepthMap &) = delete;
+    DepthMap &operator=(const DepthMap &) = delete;
+    DepthMap(DepthMap &&) = delete;
+    DepthMap &operator=(DepthMap &&) = delete;
 
     void bind(int curX, int curY, int curWidth, int curHeight);
     void unbind();
+    void clear() { glClear(GL_DEPTH_BUFFER_BIT); }
 
     GLuint getTexture() const { return textureId; }
     GLuint getFBO() const { return fbo; }
@@ -22,13 +22,10 @@ class Framebuffer {
     int getWidth() const { return width; }
     int getHeight() const { return height; }
 
-    static std::string framebufferStatusToString(GLenum status);
-
   private:
     int width;
     int height;
     GLint oldViewport[4] = {0};
     GLuint fbo;
     GLuint textureId;
-    GLuint rbo;
 };

@@ -1,4 +1,7 @@
 #include "LayeredMirror.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
+#include <stdexcept>
 #include <vector>
 
 LayeredMirror::LayeredMirror(const glm::vec3 &pos, const glm::vec3 &norm, float width, float height, int textureWidth,

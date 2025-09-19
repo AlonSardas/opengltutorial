@@ -13,7 +13,7 @@
 
 class PortalScene : public IRenderer {
   public:
-    PortalScene(IControllable *const *currentAgent, PerspectiveProjection &proj, Player *player, POVPlayer*povPlayer);
+    PortalScene(IControllable *const *currentAgent, PerspectiveProjection &proj, Player *player, POVPlayer *povPlayer);
     ~PortalScene() override;
     void init() override;
     void render() override;
@@ -28,7 +28,7 @@ class PortalScene : public IRenderer {
     std::optional<Cube> obj2, obj3;
     std::optional<SkyBox> skyBox;
     std::optional<Portal> portal1, portal2;
-    std::optional<Quad> floor;
+    std::optional<QuadNoNormals> floor;
     std::optional<Texture> floorTexture;
 
     Shader shader, floorShader;

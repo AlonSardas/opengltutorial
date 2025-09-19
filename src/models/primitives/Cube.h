@@ -2,25 +2,24 @@
 
 #include "graphics/Shader.h"
 #include "graphics/Texture.h"
+#include "models/IDrawable.h"
 #include <array>
 #include <optional>
 
-class Cube {
+class Cube : public IDrawable {
   public:
     Cube();
-    ~Cube();
+    ~Cube() override;
     Cube(const Cube &) = delete;
     Cube &operator=(const Cube &) = delete;
     Cube(Cube &&) = delete;
     Cube &operator=(Cube &&) = delete;
 
-    void setWithNormals(bool other) { withNormals = other; }
     void setTexture(const std::string &texturePath);
-    void draw(Shader &shader);
+    void draw(Shader &shader) const override;
 
   private:
     unsigned int VAO, VBO;
-    bool withNormals = false;
     std::optional<Texture> texture;
     static const std::array<float, 288> vertices;
 };

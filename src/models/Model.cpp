@@ -1,6 +1,8 @@
 #include "Model.h"
 #include "stb/stb_image.h"
 #include <assimp/Importer.hpp>
+#include <iostream>
+#include <stdexcept>
 
 using namespace std;
 

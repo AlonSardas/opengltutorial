@@ -2,7 +2,7 @@
 
 #include "graphics/CubeMap.h"
 #include "graphics/Shader.h"
-#include "models/Cube.h"
+#include "models/primitives/Cube.h"
 #include <string>
 
 class SkyBox {

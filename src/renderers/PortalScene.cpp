@@ -7,6 +7,7 @@ https://www.youtube.com/watch?v=cWpFZbjtSQg
 #include "stb/stb_image.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <iostream>
 
 // TODO: Add teleportation of objects
 
@@ -18,9 +19,9 @@ PortalScene::PortalScene(IControllable *const *agent, PerspectiveProjection &pro
       floorShader("shaders/vertexTransformer.vs", "shaders/fragmentAdapterWithTexture.fs") {
     playerModel.emplace(player);
     portal1.emplace("portal1", glm::vec3(2.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), 0, 6.0f, 4.0f);
-    // portal2.emplace("portal2", glm::vec3(-5.0f, 2.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0, 6.0f, 4.0f);
+    portal2.emplace("portal2", glm::vec3(-5.0f, 1.0f, -1.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0, 6.0f, 4.0f);
     // portal2.emplace("portal2", glm::vec3(-5.0f, 1.0f, -0.0f), glm::vec3(1.0f, 0.0f, 0.1f), 0, 6.0f, 4.0f);
-    portal2.emplace("portal2", glm::vec3(-2.0f, 1.0f, -3.0f), glm::vec3(0.0f, 0.0f, 1.1f), 0, 6.0f, 4.0f);
+    // portal2.emplace("portal2", glm::vec3(-2.0f, 1.0f, -3.0f), glm::vec3(0.0f, 0.0f, 1.1f), 0, 6.0f, 4.0f);
 
     player->addPortal(&portal1.value());
     player->addPortal(&portal2.value());

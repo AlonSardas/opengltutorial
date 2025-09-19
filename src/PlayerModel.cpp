@@ -6,14 +6,15 @@ PlayerModel::PlayerModel(const Player *player) : player(player) {
     head.setTexture("resources/awesomeface.png");
 }
 
-void PlayerModel::draw(Shader &shader) {
+void PlayerModel::draw(Shader &shader) const {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), player->getPosition());
+    model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.9f, 2.0f, 0.5f));
     shader.setMat4("model", model);
     body.draw(shader);
 
     glm::mat4 headModel = glm::translate(glm::mat4(1.0f), player->getPosition());
-    headModel = glm::translate(headModel, glm::vec3(0.0f, 1.5f, 0.0f));
+    headModel = glm::translate(headModel, glm::vec3(0.0f, 2.5f, 0.0f));
     const glm::vec3 &front = player->getFront();
     glm::vec3 worldUp(0.0f, 1.0f, 0.0f);
     glm::vec3 right = glm::normalize(glm::cross(front, worldUp));

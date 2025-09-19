@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Quad.h"
 #include "graphics/Framebuffer.h"
+#include "primitives/QuadNoNormals.h"
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -21,7 +21,7 @@ class LayeredMirror {
     glm::mat4 mirrorProjection;
 
     Shader shader;
-    Quad quad;
+    QuadNoNormals quad;
 
     // Multiple framebuffers for different recursion levels
     std::vector<Framebuffer> framebuffers;

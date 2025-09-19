@@ -1,5 +1,6 @@
 #include "PortalTraversable.h"
 #include "utils/debugUtils.h"
+#include <iostream>
 
 bool PortalTraversable::checkPortals() {
     for (auto &[portal, lastNormal] : portalsNormals) {

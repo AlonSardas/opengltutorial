@@ -1,9 +1,10 @@
 #pragma once
 
 #include "graphics/Shader.h"
+#include "models/IDrawable.h"
 #include <array>
 
-class Quad {
+class Quad : public IDrawable {
   public:
     Quad();
     ~Quad();
@@ -12,9 +13,10 @@ class Quad {
     Quad(Quad &&) = delete;
     Quad &operator=(Quad &&) = delete;
 
+    // void setTexture(const std::string &texturePath);
     void draw(Shader &shader) const;
 
   private:
     unsigned int VAO, VBO;
-    static const std::array<float, 30> vertices;
+    static const std::array<float, 48> vertices;
 };

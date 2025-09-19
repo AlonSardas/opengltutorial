@@ -1,7 +1,7 @@
-#include "Quad.h"
-#include <GLFW/glfw3.h>
+#include "QuadNoNormals.h"
+#include <glad/glad.h>
 
-const std::array<float, 30> Quad::vertices = {
+const std::array<float, 30> QuadNoNormals::vertices = {
     // First triangle
     -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,  // Top-left
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // Bottom-left
@@ -13,7 +13,7 @@ const std::array<float, 30> Quad::vertices = {
     0.5f, 0.5f, 0.0f, 1.0f, 1.0f   // Top-right
 };
 
-Quad::Quad() {
+QuadNoNormals::QuadNoNormals() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -33,12 +33,12 @@ Quad::Quad() {
     glBindVertexArray(0);
 }
 
-Quad::~Quad() {
+QuadNoNormals::~QuadNoNormals() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 }
 
-void Quad::draw(Shader &shader) const {
+void QuadNoNormals::draw(Shader &shader) const {
     shader.use();
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);

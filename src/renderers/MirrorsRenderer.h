@@ -4,12 +4,12 @@
 #include "graphics/Framebuffer.h"
 #include "graphics/PerspectiveProjection.h"
 #include "graphics/Shader.h"
-#include "models/Cube.h"
 #include "models/LayeredMirror.h"
 #include "models/Mirror.h"
 #include "models/Model.h"
-#include "models/ScreenQuad.h"
 #include "models/SkyBox.h"
+#include "models/primitives/Cube.h"
+#include "models/primitives/ScreenQuad.h"
 #include "renderers/IRenderer.h"
 #include <optional>
 

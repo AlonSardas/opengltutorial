@@ -3,8 +3,6 @@
 
 const std::array<float, 288> Cube::vertices = getCubeVerticesWithNormalsAndTexture();
 
-int cubeCount = 0;
-
 Cube::Cube() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -38,7 +36,7 @@ void Cube::setTexture(const std::string &texturePath) {
     texture->loadImage(texturePath.c_str(), true);
 }
 
-void Cube::draw(Shader &shader) {
+void Cube::draw(Shader &shader) const {
     if (texture) {
         // shader.setInt("texture_diffuse1", 0);
         texture->bind(0);

@@ -1,5 +1,6 @@
 #include "POVPlayer.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 POVPlayer::POVPlayer(const glm::vec3 &startPos, float moveSpeed, float turnSpeed)
     : BaseControllable(moveSpeed, turnSpeed), position(startPos), worldUp(0.0f, 1.0f, 0.0f), yaw(0), pitch(0),

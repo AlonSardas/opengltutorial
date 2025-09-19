@@ -11,7 +11,8 @@ https://learnopengl.com/code_viewer_gh.php?code=src/1.getting_started/7.3.camera
 #include "renderers/MirrorsRenderer.h"
 #include "renderers/ModelLoadingExample.h"
 #include "renderers/PortalScene.h"
-#include "renderers/Renderer.h"
+#include "renderers/ShadowRenderer.h"
+#include "renderers/StaticCubesRenderer.h"
 #include "renderers/StencilGlowExample.h"
 #include "stb/stb_image_write.h"
 
@@ -23,12 +24,13 @@ App::App()
       povPlayer(glm::vec3(0.0, 2.5f, 0.0f), 12.0f, 65.0f) {
     currentAgent = &camera;
 
-    // renderer = std::make_unique<Renderer>(camera, projection);
+    // renderer = std::make_unique<StaticCubesRenderer>(camera, projection);
     // renderer = std::make_unique<LightingRenderer>(camera, projection);
     // renderer = std::make_unique<ModelLoadingExample>(camera, projection);
     // renderer = std::make_unique<StencilGlowExample>(camera, projection);
     // renderer = std::make_unique<MirrorsRenderer>(camera, projection);
-    renderer = std::make_unique<PortalScene>(&currentAgent, projection, &player, &povPlayer);
+    // renderer = std::make_unique<PortalScene>(&currentAgent, projection, &player, &povPlayer);
+    renderer = std::make_unique<ShadowRenderer>(&currentAgent, &player, projection);
     renderer->init();
     renderer->onResize(INITIAL_WIDTH, INITIAL_HEIGHT);
     window.setAppForCallback(this);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Quad.h"
 #include "graphics/Framebuffer.h"
+#include "primitives/QuadNoNormals.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -49,7 +49,7 @@ class Mirror {
     glm::mat4 mirrorView;
     glm::mat4 mirrorProjection;
 
-    Quad quad;
+    QuadNoNormals quad;
     Shader shader;
 
     void updateMatrices(const glm::vec3 &cameraPos);

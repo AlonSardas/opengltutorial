@@ -4,7 +4,7 @@ Texture::Texture() { glGenTextures(1, &id); }
 
 Texture::~Texture() { glDeleteTextures(1, &id); }
 
-void Texture::bind(int textureUnit) {
+void Texture::bind(int textureUnit) const {
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, id);
 }

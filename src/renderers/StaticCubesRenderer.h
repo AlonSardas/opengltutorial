@@ -7,10 +7,10 @@
 #include "renderers/IRenderer.h"
 #include <array>
 
-class Renderer : public IRenderer {
+class StaticCubesRenderer : public IRenderer {
   public:
-    Renderer(const QuatCamera &c, PerspectiveProjection &proj);
-    ~Renderer() override;
+    StaticCubesRenderer(const QuatCamera &c, PerspectiveProjection &proj);
+    ~StaticCubesRenderer() override;
     void init() override;
     void render() override;
     void onResize(int width, int height) override;

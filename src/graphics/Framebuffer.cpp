@@ -1,13 +1,13 @@
 #include "Framebuffer.h"
 #include <iostream>
 
-std::string framebufferStatusToString(GLenum status);
-
 Framebuffer::Framebuffer() : width(0), height(0), fbo(0), textureId(0), rbo(0) { glGenFramebuffers(1, &fbo); }
 
 Framebuffer::Framebuffer(Framebuffer &&other) noexcept
     : width(other.width), height(other.height), fbo(other.fbo), textureId(other.textureId), rbo(other.rbo) {
     other.fbo = 0;
+    other.textureId = 0;
+    other.rbo = 0;
 }
 
 void Framebuffer::resize(int newWidth, int newHeight) {
@@ -71,7 +71,7 @@ void Framebuffer::unbind() {
     glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
 }
 
-std::string framebufferStatusToString(GLenum status) {
+std::string Framebuffer::framebufferStatusToString(GLenum status) {
     switch (status) {
     case GL_FRAMEBUFFER_COMPLETE:
         return "GL_FRAMEBUFFER_COMPLETE";
