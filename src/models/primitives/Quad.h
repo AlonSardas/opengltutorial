@@ -6,7 +6,7 @@
 
 class Quad : public IDrawable {
   public:
-    Quad();
+    Quad(float texScaleU = 1.0f, float texScaleV = 1.0f);
     ~Quad();
     Quad(const Quad &) = delete;
     Quad &operator=(const Quad &) = delete;
@@ -14,7 +14,7 @@ class Quad : public IDrawable {
     Quad &operator=(Quad &&) = delete;
 
     // void setTexture(const std::string &texturePath);
-    void draw(Shader &shader) const;
+    void draw(Shader &shader) const override;
 
   private:
     unsigned int VAO, VBO;

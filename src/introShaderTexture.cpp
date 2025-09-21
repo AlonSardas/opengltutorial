@@ -262,9 +262,7 @@ int run(GLFWwindow *window) {
         float greenValue = (sin(timeValue * 2.0f) / 2.0f) + 0.5f;
         glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's
-                                // no need to bind it every time, but we'll do
-                                // so to keep things a bit more organized
+        glBindVertexArray(VAO);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);

@@ -12,7 +12,7 @@ LightingRenderer::LightingRenderer(const QuatCamera &c, PerspectiveProjection &p
     : camera(c), projection(proj),
       lightingShader("shaders/transformNormalsTexture.vs", "shaders/materialLightFragment.fs"),
       // lightingShader("shaders/transformAndNormals.vs", "shaders/materialLightFragment.fs"),
-      lightCubeShader("shaders/transform.vs", "shaders/solidLightSource.fs"), lightPos(1.2f, 1.0f, 2.0f) {
+      lightCubeShader("shaders/transform.vs", "shaders/solidColor.fs"), lightPos(1.2f, 1.0f, 2.0f) {
     glGenVertexArrays(1, &lightVAO);
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

@@ -1,9 +1,13 @@
 #include "Cube.h"
 #include "CubeData.h"
+#include <memory>
 
 const std::array<float, 288> Cube::vertices = getCubeVerticesWithNormalsAndTexture();
 
 Cube::Cube() {
+    defaultDrawable = std::make_unique<ArrayDrawable>(GL_TRIANGLES, 0, 36);
+    inner = defaultDrawable.get();
+
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -43,6 +47,6 @@ void Cube::draw(Shader &shader) const {
     }
 
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    inner->draw(shader);
     glBindVertexArray(0);
 }

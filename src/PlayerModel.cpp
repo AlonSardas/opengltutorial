@@ -22,7 +22,7 @@ void PlayerModel::draw(Shader &shader) const {
     glm::mat4 rotation(1.0f);
     rotation[0] = glm::vec4(right, 0.0f);
     rotation[1] = glm::vec4(up, 0.0f);
-    rotation[2] = glm::vec4(front, 0.0f);
+    rotation[2] = glm::vec4(-front, 0.0f);
     headModel = headModel * rotation;
     shader.setMat4("model", headModel);
     head.draw(shader);

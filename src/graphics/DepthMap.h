@@ -22,7 +22,12 @@ class DepthMap {
     int getWidth() const { return width; }
     int getHeight() const { return height; }
 
-  private:
+  protected:
+    virtual void generateTexture();
+    virtual void bindTexture() {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureId, 0);
+    }
+
     int width;
     int height;
     GLint oldViewport[4] = {0};

@@ -9,10 +9,12 @@ class Player : public POVPlayer {
         // Note: parent constructor only calls its own updateVectors and updateViewMatrix
         updateViewMatrix();
     }
+    const glm::vec3 &getCameraPosition() const override { return cameraPosition; }
 
   protected:
     void updateViewMatrix() override;
 
   private:
     const glm::vec3 cameraBase = glm::vec3(0.0f, 1.5f, 0.0f);
+    glm::vec3 cameraPosition;
 };

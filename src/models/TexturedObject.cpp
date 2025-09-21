@@ -1,9 +1,10 @@
 #include "TexturedObject.h"
 
-TexturedObject::TexturedObject(const IDrawable *inner, const std::string &texturePath, const std::string &uniformName)
+TexturedObject::TexturedObject(const IDrawable *inner, const std::string &texturePath, const std::string &uniformName,
+                               GLint wrapS, GLint wrapT)
     : drawable(inner), uniformName(uniformName) {
     texture.bind(0);
-    texture.setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    texture.setWrap(wrapS, wrapT);
     texture.setMinMagFilters(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
     texture.loadImage(texturePath.c_str(), true);
 }

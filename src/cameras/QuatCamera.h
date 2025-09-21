@@ -12,6 +12,7 @@ class QuatCamera : public BaseControllable {
     void rotate(float yawDegrees, float pitchDegrees, float rollDegrees) override;
 
     const glm::vec3 &getPosition() const { return position; }
+    const glm::vec3 &getCameraPosition() const { return position; }
     const glm::vec3 &getFront() const override;
     const glm::mat4 &getViewMatrix() const { return viewMatrix; }
 

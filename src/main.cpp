@@ -1,6 +1,8 @@
+
 #include "App.h"
-#include <GLFW/glfw3.h>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 int main() {
     // glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
@@ -17,6 +19,8 @@ int main() {
         glfwTerminate();
         return 1;
     }
+
+    // std::this_thread::sleep_for(std::chrono::seconds(10));
 
     glfwTerminate();
     return 0;

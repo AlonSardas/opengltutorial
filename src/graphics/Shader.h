@@ -10,7 +10,7 @@ class Shader {
     unsigned int ID;
 
     // constructor reads and builds the shader
-    Shader(const char *vertexPath, const char *fragmentPath);
+    Shader(const char *vertexPath, const char *fragmentPath, const char* geometryPath = nullptr);
     ~Shader();
     Shader(const Shader &) = delete;
     Shader &operator=(const Shader &) = delete;

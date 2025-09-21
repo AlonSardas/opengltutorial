@@ -18,6 +18,7 @@ class POVPlayer : public BaseControllable {
 
     const glm::vec3 &getFront() const override { return front; }
     const glm::vec3 &getPosition() const override { return position; }
+    const glm::vec3 &getCameraPosition() const override { return position; }
     const glm::mat4 &getViewMatrix() const override { return viewMatrix; }
 
     void addPortal(const Portal *portal) { portalComponent.addPortal(portal); }

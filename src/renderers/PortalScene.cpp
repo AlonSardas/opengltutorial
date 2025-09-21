@@ -27,6 +27,8 @@ PortalScene::PortalScene(IControllable *const *agent, PerspectiveProjection &pro
     player->addPortal(&portal2.value());
     povPlayer->addPortal(&portal1.value());
     povPlayer->addPortal(&portal2.value());
+
+    player->setPosition(glm::vec3(0.0f, -0.5f, 0.0f));
 }
 
 PortalScene::~PortalScene() {}

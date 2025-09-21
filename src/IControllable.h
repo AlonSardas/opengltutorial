@@ -25,6 +25,8 @@ class IControllable {
     virtual void rollRight(float deltaTime) = 0;
 
     virtual const glm::mat4 &getViewMatrix() const = 0;
+    // For players with body, this is different from getPosition()
+    virtual const glm::vec3 &getCameraPosition() const = 0;
     virtual const glm::vec3 &getPosition() const = 0;
     virtual const glm::vec3 &getFront() const = 0;
 };

@@ -29,7 +29,7 @@ void ScreenQuad::setBounds(float x, float y, float width, float height) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ScreenQuad::draw(Shader &shader) {
+void ScreenQuad::draw(Shader &shader) const {
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);

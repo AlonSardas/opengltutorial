@@ -19,7 +19,6 @@ class Window {
     Window(Window &&) = delete;
     Window &operator=(Window &&) = delete;
 
-    void pollEvents();
     void swapBuffers();
     void setAppForCallback(App *appInstance);
     void setFullscreenMode(bool mode);

@@ -12,13 +12,23 @@ const std::array<float, 48> Quad::vertices = {
     0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f  // Top-right
 };
 
-Quad::Quad() {
+Quad::Quad(float texScaleU, float texScaleV) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+    if (texScaleU != 1.0f || texScaleV != 1.0f) {
+        std::array<float, 48> scaledVertices = vertices;
+        for (size_t i = 0; i < 6; ++i) {
+            scaledVertices[i * 8 + 6] *= texScaleU;
+            scaledVertices[i * 8 + 7] *= texScaleV;
+        }
+        glBufferData(GL_ARRAY_BUFFER, scaledVertices.size() * sizeof(float), scaledVertices.data(), GL_STATIC_DRAW);
+    } else {
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    }
 
     // Position attribute (location 0)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);

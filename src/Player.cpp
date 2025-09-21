@@ -4,6 +4,7 @@
 
 void Player::updateViewMatrix() {
     glm::vec3 cameraOffset = cameraBase + 1.5f * up - 4.0f * front;
+    cameraPosition = position + cameraOffset;
 
     viewMatrix = glm::lookAt(position + cameraOffset, position + cameraOffset + front, worldUp);
 }
