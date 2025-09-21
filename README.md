@@ -36,6 +36,9 @@ make release
 ### 💡 Lighting
 ![Lighting Example](screenshots/lighting.png)
 
+### 🌑 Shadows  
+![Shadows Example](screenshots/shadows2.png)
+
 ### 🪞 Mirrors
 ![Mirrors Example](screenshots/mirrors.png)
 

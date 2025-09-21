@@ -95,12 +95,12 @@ void Sphere::generateVerticesAndIndices(unsigned int latitudeBands, unsigned int
 
             // Two triangles per quad
             indices.push_back(first);
-            indices.push_back(second);
             indices.push_back(first + 1);
+            indices.push_back(second);
 
             indices.push_back(second);
-            indices.push_back(second + 1);
             indices.push_back(first + 1);
+            indices.push_back(second + 1);
         }
     }
 }

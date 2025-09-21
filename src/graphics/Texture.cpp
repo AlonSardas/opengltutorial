@@ -40,8 +40,12 @@ void Texture::loadImage(const char *filePath, bool flipVertically) {
     else {
         throw std::runtime_error("Unsupported number of texture components: " + std::to_string(nrComponents));
     }
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
+}
+
+void Texture::loadSolidColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    unsigned char data[] = {r, g, b, a};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 }

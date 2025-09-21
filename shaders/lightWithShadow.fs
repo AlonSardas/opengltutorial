@@ -39,7 +39,21 @@ float ShadowCalculationLightSpace(vec4 fragPosLightSpace) {
     // float bias = -0.0001;
     // float bias = 0; // Not necessary if rendering with back face culling
     // check whether current frag pos is in shadow
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    // float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+    // PCF
+    float shadow = 0.0;
+    float middleFactor = 5.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for (int x = -1; x <= 1; ++x) {
+        for (int y = -1; y <= 1; ++y) {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+
+            float factor = x == 0 && y == 0 ? middleFactor : 1.0;
+            shadow += currentDepth - bias > pcfDepth ? factor : 0.0;
+        }
+    }
+    shadow /= middleFactor + 8.0;
 
     return shadow;
 }
@@ -54,7 +68,8 @@ float ShadowCalculation(vec3 fragPos) {
     // now get current linear depth as the length between the fragment and light position
     float currentDepth = length(fragToLight);
     // test for shadows
-    float bias = 0.005; // we use a much larger bias since depth is now in [near_plane, far_plane] range
+    // float bias = 0.005; // we use a much larger bias since depth is now in [near_plane, far_plane] range
+    float bias = 0.000;
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;

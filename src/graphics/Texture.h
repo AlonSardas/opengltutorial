@@ -17,6 +17,7 @@ class Texture {
     void setMinMagFilters(GLint minFilter, GLint magFilter);
     void bind(int textureUnit) const;
     void loadImage(const char *filePath, bool flipVertically);
+    void loadSolidColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
     inline GLuint getID() const { return id; }
 
   private:

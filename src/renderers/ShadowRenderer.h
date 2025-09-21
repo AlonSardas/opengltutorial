@@ -49,6 +49,7 @@ class ShadowRenderer : public IRenderer {
     IDrawable *defaultCubeDrawable = nullptr;
 
     void addCube(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &rotation);
+    void addSphere(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3& color, const std::string& texturePath = "");
     void addCube2(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &rotation);
     void renderScene(Shader &shader);
 };
