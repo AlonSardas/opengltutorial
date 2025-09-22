@@ -33,10 +33,13 @@ float ShadowCalculationLightSpace(vec4 fragPosLightSpace) {
     if (currentDepth > 1.0)
         return 0.0;
 
+    if (dot(fs_in.Normal, lightDir) < 0.0)
+        return 0.0;
+
     vec3 normal = normalize(fs_in.Normal);
     // float bias = max(0.000005 * (1.0 - dot(normal, lightDir)), 0.00001);
-    float bias = -0.00005 * (1.0 - dot(normal, lightDir));
-    // float bias = -0.0001;
+    // float bias = -0.00005 * (1.0 - dot(normal, lightDir));
+    float bias = -0.0001;
     // float bias = 0; // Not necessary if rendering with back face culling
     // check whether current frag pos is in shadow
     // float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
@@ -61,6 +64,18 @@ float ShadowCalculationLightSpace(vec4 fragPosLightSpace) {
 float ShadowCalculation(vec3 fragPos) {
     // get vector between fragment position and light position
     vec3 fragToLight = fragPos - lightPos;
+    vec3 lightDirNorm = normalize(fragToLight);
+
+    float bias;
+    // if (dot(fs_in.Normal, fragToLight) >= 0.0)
+    //     return 1.0;
+
+    // // bias = 0.005;
+    // else {
+    //     bias = -0.001;
+    // }
+    vec3 normal = normalize(fs_in.Normal);
+
     // ise the fragment to light vector to sample from the depth map
     float closestDepth = texture(depthCubeMap, fragToLight).r;
     // it is currently in linear range between [0,1], let's re-transform it back to original depth value
@@ -68,8 +83,7 @@ float ShadowCalculation(vec3 fragPos) {
     // now get current linear depth as the length between the fragment and light position
     float currentDepth = length(fragToLight);
     // test for shadows
-    // float bias = 0.005; // we use a much larger bias since depth is now in [near_plane, far_plane] range
-    float bias = 0.000;
+    bias = -max(0.001 * (1.0 - dot(normal, lightDirNorm)), 0.001);
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
@@ -79,7 +93,7 @@ vec3 getLight(vec3 lightColor, vec3 lightDirection, float shadow) {
     vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
     vec3 normal = normalize(fs_in.Normal);
     // ambient
-    vec3 ambient = 0.3 * lightColor;
+    vec3 ambient = 0.2 * lightColor;
     // diffuse
     float diff = max(dot(lightDirection, normal), 0.0);
     vec3 diffuse = diff * lightColor;
